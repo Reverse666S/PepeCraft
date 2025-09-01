@@ -500,76 +500,141 @@ function denyCard(txt){
     return c;
   }
 
-function cardUsersTable(){
-  const c = el("div","card");
-  c.innerHTML = `<h3>Alle Konten</h3>`;
-  const rows = getUsers().map(u=>[
-    `<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,
-    `<span class="tag">${u.role}</span>`,
-    new Date(u.created).toLocaleDateString(),
-    session()?.id===u.id? "—" : `
+  // Accounts global speichern
+  async function getUsers() {
+    const { data, error } = await supabase.from('users').select('*').order('created');
+    if(error) { toast(error.message,true); return []; }
+    return data;
+  }
+
+  async function setUsers(users) {
+    // Supabase speichert automatisch beim create/update; keine lokale Speicherung nötig
+    // Optional: Mitgliederliste aktualisieren
+    const members = users.map(u => ({ign: u.username, discord:"", ranks:[u.role]}));
+    await supabase.from('members').delete().neq('ign', ''); // alte löschen
+    await supabase.from('members').insert(members);
+  }
+
+  async function getMembers() {
+    const { data, error } = await supabase.from('members').select('*');
+    if(error){ toast(error.message,true); return []; }
+    return data;
+  }
+
+  async function setMembers(arr){
+    await supabase.from('members').delete().neq('ign',''); // alte löschen
+    await supabase.from('members').insert(arr);
+  }
+
+  async function delUser(id){
+    if(!confirm("Konto wirklich löschen?")) return;
+    await supabase.from('users').delete().eq('id',id);
+    toast("Konto gelöscht"); routeTo("accounts");
+  }
+
+  async function setRole(id,role){
+    await supabase.from('users').update({role}).eq('id',id);
+    toast("Rolle geändert"); routeTo("accounts");
+  }
+
+  async function delMember(i){
+    const arr = await getMembers();
+    arr.splice(i,1);
+    await setMembers(arr);
+    toast("Mitglied entfernt"); routeTo("members");
+  }
+
+  // cardCreateUser
+  function cardCreateUser(){
+    const c = el("div","card");
+    c.innerHTML = `
+      <h3>Account erstellen</h3>
       <div class="row">
-        <button class="btn small" onclick="setRole('${u.id}','member')">member</button>
-        <button class="btn small" onclick="setRole('${u.id}','admin')">admin</button>
-        ${can('RandomAuto')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
-        <button class="btn small bad" onclick="delUser('${u.id}')">löschen</button>
-      </div>`
-  ]);
-  c.appendChild(table(["Konto","Rolle","Seit","Aktionen"], rows));
-  return c;
-}
+        <input class="input" id="cu_u" placeholder="Username">
+        <input class="input" id="cu_p" placeholder="Passwort">
+        <select class="input" id="cu_r">
+          <option value="member">member</option>
+          <option value="admin">admin</option>
+          <option value="owner">owner</option>
+        </select>
+        <button class="btn primary" id="cu_s">Anlegen</button>
+      </div>`;
 
-function cardMembersTable(editable){
-  const c = el("div","card");
-  c.innerHTML = `<h3>Clanmitglieder</h3>`;
-  const rows = getMembers().map((m,i)=>[
-    `<b>${m.ign}</b>`,
-    m.discord,
-    m.ranks.join(", "),
-    editable?`<button class="btn small bad" onclick="delMember(${i})">Entfernen</button>`:""
-  ]);
-  c.appendChild(table(["Ingame","Discord","Ränge","Aktion"], rows));
-  return c;
-}
-function cardMemberForm(){
-  const c = el("div","card");
-  c.innerHTML = `
-    <h3>Mitglied eintragen</h3>
-    <div class="row">
-      <input id="mi" class="input" placeholder="Ingame-Name">
-      <input id="md" class="input" placeholder="Discord-Name">
-      <input id="mr" class="input" placeholder="Wichtigste Ränge (Komma getrennt)">
-      <button class="btn primary" id="ms">Speichern</button>
-    </div>`;
-  c.querySelector("#ms").onclick = ()=>{
-    const ign=c.querySelector("#mi").value.trim();
-    const disc=c.querySelector("#md").value.trim();
-    const ranks=c.querySelector("#mr").value.split(",").map(s=>s.trim()).filter(Boolean);
-    if(!ign) return toast("Ingame-Name erforderlich", true);
-    const arr=getMembers(); arr.push({ign,discord:disc,ranks}); setMembers(arr); toast("Mitglied gespeichert"); routeTo("members");
-  };
-  return c;
-}
+    c.querySelector("#cu_s").onclick = async ()=>{
+      const u = c.querySelector("#cu_u").value.trim();
+      const p = c.querySelector("#cu_p").value.trim();
+      const r = c.querySelector("#cu_r").value;
+      if(!u||!p) return toast("Username & Passwort angeben", true);
 
-/* Helpers & actions */
-function delUser(id){
-  if(!confirm("Konto wirklich löschen?")) return;
-  const users=getUsers().filter(u=>u.id!==id); setUsers(users); toast("Konto gelöscht"); routeTo("accounts");
-}
-function setRole(id,role){
-  const users=getUsers(); const i=users.findIndex(u=>u.id===id);
-  users[i].role=role; setUsers(users); toast("Rolle geändert"); routeTo("accounts");
-}
-function delMember(i){ const x=getMembers(); x.splice(i,1); setMembers(x); toast("Mitglied entfernt"); routeTo("members"); }
-function delLink(i){ const x=getLinks(); x.splice(i,1); setLinks(x); toast("Link gelöscht"); routeTo("links"); }
-function delSupport(id){ const x=getSupports().filter(s=>s.id!==id); setSupports(x); toast("Eintrag gelöscht"); routeTo("support"); }
+      const { data: existing } = await supabase.from('users').select('*').eq('username',u).single();
+      if(existing) return toast("Username existiert bereits", true);
 
-function topRanking(){
-  const counts = {};
-  getSupports().forEach(s=>{ counts[s.by]=(counts[s.by]||0)+1; });
-  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  return top.length? top.map((t,i)=>`#${i+1} ${t[0]} – ${t[1]}`).join("<br>") : "—";
-}
+      await supabase.from('users').insert([{username:u,pass:p,role:r,avatar:"",created:Date.now()}]);
+      toast("Account erstellt"); routeTo("admin");
+    };
+
+    return c;
+  }
+
+  // cardUsersTable
+  async function cardUsersTable(){
+    const c = el("div","card");
+    c.innerHTML = `<h3>Alle Konten</h3>`;
+    const users = await getUsers();
+    const rows = users.map(u=>[
+      `<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,
+      `<span class="tag">${u.role}</span>`,
+      new Date(u.created).toLocaleDateString(),
+      session()?.id===u.id? "—" : `
+        <div class="row">
+          <button class="btn small" onclick="setRole('${u.id}','member')">member</button>
+          <button class="btn small" onclick="setRole('${u.id}','admin')">admin</button>
+          ${can('RandomAuto')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
+          <button class="btn small bad" onclick="delUser('${u.id}')">löschen</button>
+        </div>`
+    ]);
+    c.appendChild(table(["Konto","Rolle","Seit","Aktionen"], rows));
+    return c;
+  }
+
+  // cardMembersTable
+  async function cardMembersTable(editable){
+    const c = el("div","card");
+    c.innerHTML = `<h3>Clanmitglieder</h3>`;
+    const members = await getMembers();
+    const rows = members.map((m,i)=>[
+      `<b>${m.ign}</b>`,
+      m.discord,
+      m.ranks.join(", "),
+      editable?`<button class="btn small bad" onclick="delMember(${i})">Entfernen</button>`:""
+    ]);
+    c.appendChild(table(["Ingame","Discord","Ränge","Aktion"], rows));
+    return c;
+  }
+
+  // cardMemberForm
+  function cardMemberForm(){
+    const c = el("div","card");
+    c.innerHTML = `
+      <h3>Mitglied eintragen</h3>
+      <div class="row">
+        <input id="mi" class="input" placeholder="Ingame-Name">
+        <input id="md" class="input" placeholder="Discord-Name">
+        <input id="mr" class="input" placeholder="Wichtigste Ränge (Komma getrennt)">
+        <button class="btn primary" id="ms">Speichern</button>
+      </div>`;
+    c.querySelector("#ms").onclick = async ()=>{
+      const ign=c.querySelector("#mi").value.trim();
+      const disc=c.querySelector("#md").value.trim();
+      const ranks=c.querySelector("#mr").value.split(",").map(s=>s.trim()).filter(Boolean);
+      if(!ign) return toast("Ingame-Name erforderlich", true);
+      const arr = await getMembers();
+      arr.push({ign,discord:disc,ranks});
+      await setMembers(arr);
+      toast("Mitglied gespeichert"); routeTo("members");
+    };
+    return c;
+  }
 
 function fileToDataUrl(file){
   return new Promise(res=>{
