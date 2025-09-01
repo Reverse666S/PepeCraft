@@ -1,687 +1,104 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <title>PepeCraft – Clan Portal</title>
-  <link rel="icon" type="image/png" href="pepecraft.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root{
-      --bg:#0f1220; --panel:#171a2b; --muted:#232742; --fg:#e6e8ff;
-      --accent:#7c5cff; --good:#25c28a; --bad:#ff5c7c; --warn:#f5a524;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-         background:linear-gradient(180deg,#0b0e1a, #0f1220); color:var(--fg)}
-    a{color:var(--accent);text-decoration:none}
-    img{max-width:100%}
-    .wrap{max-width:1100px;margin:0 auto;padding:20px}
-    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0}
-    .brand{display:flex;gap:12px;align-items:center}
-    .brand img{width:56px;height:56px;border-radius:14px;border:2px solid #0003}
-    .brand h1{font-size:22px;margin:0;letter-spacing:.6px}
-    .nav{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{background:var(--muted);color:var(--fg);border:1px solid #0005;border-radius:10px;
-         padding:10px 14px;cursor:pointer;transition:.15s;font-weight:600}
-    .btn:hover{transform:translateY(-1px);background:#2a2f57}
-    .btn.primary{background:var(--accent);border-color:#0000}
-    .btn.good{background:var(--good)}
-    .btn.bad{background:var(--bad)}
-    .btn.warn{background:var(--warn);color:#111}
-    .btn.small{padding:6px 10px;font-size:14px}
-    .grid{display:grid;gap:16px}
-    @media(min-width:900px){ .grid.cols-2{grid-template-columns:1fr 1fr} .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
-    .card{background:var(--panel);border:1px solid #0006;border-radius:16px;padding:16px}
-    .card h3{margin:0 0 10px 0}
-    .muted{color:#aab}
-    .input, textarea, select{width:100%;padding:10px;border-radius:10px;border:1px solid #0006;background:#11152b;color:var(--fg)}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .pill{padding:6px 10px;border-radius:999px;background:#232742;border:1px solid #0006;font-size:12px}
-    .table{width:100%;border-collapse:collapse}
-    .table th,.table td{padding:10px;border-bottom:1px solid #2a2e4d;text-align:left}
-    .table th{color:#9db}
-    .center{display:flex;align-items:center;justify-content:center}
-    .right{margin-left:auto}
-    .tag{font-size:12px;padding:3px 8px;border-radius:8px;background:#2b315d;border:1px solid #0006}
-    .status{display:inline-flex;align-items:center;gap:8px;padding:10px;border-radius:12px;border:1px dashed #445}
-    .kpi{background:linear-gradient(180deg,#1b1f39,#151932);padding:14px;border-radius:16px;border:1px solid #0006}
-    .avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #0005;background:#0003}
-    .flex{display:flex;gap:12px;align-items:center}
-    .hidden{display:none !important}
-    footer{opacity:.7;padding:30px 0}
-    .badge{background:#2c315d;border:1px solid #0007;border-radius:999px;padding:4px 10px;font-size:12px}
-    .support-type{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px}
-    .support-type button{height:70px}
-    .toast{position:fixed;bottom:16px;right:16px;background:#1d2244;border:1px solid #0006;padding:12px 14px;border-radius:12px}
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8">
+<title>PepeCraft – Clan Portal</title>
+<link rel="icon" type="image/png" href="pepecraft.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--bg:#0f1220;--panel:#171a2b;--muted:#232742;--fg:#e6e8ff;--accent:#7c5cff;--good:#25c28a;--bad:#ff5c7c;--warn:#f5a524;}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;background:linear-gradient(180deg,#0b0e1a,#0f1220);color:var(--fg)}
+a{color:var(--accent);text-decoration:none}img{max-width:100%}.wrap{max-width:1100px;margin:0 auto;padding:20px}header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:14px 0}.brand{display:flex;gap:12px;align-items:center}.brand img{width:56px;height:56px;border-radius:14px;border:2px solid #0003}.brand h1{font-size:22px;margin:0;letter-spacing:.6px}.nav{display:flex;gap:8px;flex-wrap:wrap}.btn{background:var(--muted);color:var(--fg);border:1px solid #0005;border-radius:10px;padding:10px 14px;cursor:pointer;transition:.15s;font-weight:600}.btn:hover{transform:translateY(-1px);background:#2a2f57}.btn.primary{background:var(--accent);border-color:#0000}.btn.good{background:var(--good)}.btn.bad{background:var(--bad)}.btn.warn{background:var(--warn);color:#111}.btn.small{padding:6px 10px;font-size:14px}.grid{display:grid;gap:16px}@media(min-width:900px){.grid.cols-2{grid-template-columns:1fr 1fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}}.card{background:var(--panel);border:1px solid #0006;border-radius:16px;padding:16px}.card h3{margin:0 0 10px 0}.muted{color:#aab}.input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid #0006;background:#11152b;color:var(--fg)}textarea{min-height:120px;resize:vertical}.row{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:6px 10px;border-radius:999px;background:#232742;border:1px solid #0006;font-size:12px}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid #2a2e4d;text-align:left}.table th{color:#9db}.center{display:flex;align-items:center;justify-content:center}.right{margin-left:auto}.tag{font-size:12px;padding:3px 8px;border-radius:8px;background:#2b315d;border:1px solid #0006}.status{display:inline-flex;align-items:center;gap:8px;padding:10px;border-radius:12px;border:1px dashed #445}.kpi{background:linear-gradient(180deg,#1b1f39,#151932);padding:14px;border-radius:16px;border:1px solid #0006}.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #0005;background:#0003}.flex{display:flex;gap:12px;align-items:center}.hidden{display:none !important}footer{opacity:.7;padding:30px 0}.badge{background:#2c315d;border:1px solid #0007;border-radius:999px;padding:4px 10px;font-size:12px}.support-type{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px}.support-type button{height:70px}.toast{position:fixed;bottom:16px;right:16px;background:#1d2244;border:1px solid #0006;padding:12px 14px;border-radius:12px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Supabase Client initialisieren
-  const SUPABASE_URL = "https://supabase.com/dashboard/project/nejriqvvzdffkmycrair";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E";
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://your-supabase-url.supabase.co";
+const SUPABASE_ANON_KEY = "your-anon-key";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const qs = s => document.querySelector(s);
+const el = (t,cls) => Object.assign(document.createElement(t),{className:cls||""});
+
+function toast(msg,err){const t=qs("#toast");t.textContent=msg;t.style.borderColor=err?"#ff6b81":"#0006";t.classList.remove("hidden");setTimeout(()=>t.classList.add("hidden"),2000);}
+async function fileToDataUrl(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});}
+
+async function getUsers(){const {data,error}=await supabase.from('users').select('*').order('created');if(error){toast(error.message,true);return []}return data;}
+async function setUsers(users){const members=users.map(u=>({ign:u.username,discord:"",ranks:[u.role]}));await supabase.from('members').delete().neq('ign','');await supabase.from('members').insert(members);}
+async function delUser(id){if(!confirm("Konto wirklich löschen?")) return;await supabase.from('users').delete().eq('id',id);toast("Konto gelöscht");routeTo("accounts");}
+async function setRole(id,role){await supabase.from('users').update({role}).eq('id',id);toast("Rolle geändert");routeTo("accounts");}
+
+async function getMembers(){const {data,error}=await supabase.from('members').select('*');if(error){toast(error.message,true);return []}return data;}
+async function setMembers(arr){await supabase.from('members').delete().neq('ign','');await supabase.from('members').insert(arr);}
+async function delMember(i){const arr=await getMembers();arr.splice(i,1);await setMembers(arr);toast("Mitglied entfernt");routeTo("members");}
+
+async function getLinks(){const {data,error}=await supabase.from('links').select('*');if(error){toast(error.message,true);return []}return data;}
+async function setLinks(arr){await supabase.from('links').delete().neq('name','');await supabase.from('links').insert(arr);}
+async function delLink(idx){const arr=await getLinks();arr.splice(idx,1);await setLinks(arr);toast("Link gelöscht");routeTo("links");}
+
+async function getSupports(){const {data,error}=await supabase.from('supports').select('*');if(error){toast(error.message,true);return []}return data;}
+async function setSupports(arr){await supabase.from('supports').delete().neq('id','');await supabase.from('supports').insert(arr);}
+async function delSupport(id){await supabase.from('supports').delete().eq('id',id);toast("Support gelöscht");routeTo("support");}
+
+async function getHome(){const {data,error}=await supabase.from('home').select('*').limit(1).single();if(error)return{title:"Willkommen",content:"Bearbeite das Adminpanel",hero:"pepecraft.png"};return data;}
+async function setHome(obj){await supabase.from('home').upsert(obj);toast("Startseite gespeichert");routeTo("home");}
+
+function session(){return JSON.parse(localStorage.getItem("pc_session")||"null");}
+function loginAs(u){localStorage.setItem("pc_session",JSON.stringify(u));renderTop();routeTo("home");toast("Angemeldet als "+u.username);}
+function logout(){localStorage.removeItem("pc_session");renderTop();routeTo("login");}
+
+function can(view){const me=session();if(!me)return false;if(me.role==="owner")return true;const map={admin:["admin","owner"],member:["member","admin","owner"]};if(view==="owner")return me.role==="owner";if(view==="admin")return map.admin.includes(me.role);return map.member.includes(me.role);}
+
+function renderTop(){const me=session();qs("#who").textContent=me?`Eingeloggt: ${me.username} (${me.role})`:"Nicht eingeloggt";const nav=qs("#topNav");nav.innerHTML="";const add=(label,view,guard)=>{if(guard===false)return;const b=el("button","btn small");b.textContent=label;b.onclick=()=>routeTo(view);nav.appendChild(b);};add("Start","home",true);add("Mitglieder","members",true);add("Team","team",true);add("Links","links",true);add("Support","support",true);add("Konten","accounts",can("admin"));add("Adminpanel","admin",can("admin"));if(me){const prof=el("button","btn small");prof.textContent="Profil";prof.onclick=()=>routeTo("profile");nav.appendChild(prof);const out=el("button","btn small bad");out.textContent="Logout";out.onclick=logout;nav.appendChild(out);}else{const inn=el("button","btn small primary");inn.textContent="Login";inn.onclick=()=>routeTo("login");nav.appendChild(inn);}}
+
+function table(headers,rows){const t=el("table","table");const thead=el("thead");const trh=el("tr");headers.forEach(h=>{const th=el("th");th.innerHTML=h;trh.appendChild(th);});thead.appendChild(trh);t.appendChild(thead);const tb=el("tbody");rows.forEach(r=>{const tr=el("tr");r.forEach(c=>{const td=el("td");td.innerHTML=c;tr.appendChild(td);});tb.appendChild(tr);});t.appendChild(tb);return t;}
+function cardKPI(label,val){const c=el("div","kpi");c.innerHTML=`<div class="muted">${label}</div><div style="font-size:28px;font-weight:800">${val}</div>`;return c;}
+function kpiBox(label,val){const c=el("div","card");c.innerHTML=`<div class="muted">${label}</div><div style="font-size:24px;font-weight:800;margin-top:6px">${typeof val==="string"?val:val}</div>`;return c;}
+function denyCard(txt){const c=el("div","card");c.innerHTML=`<div class="status">🔒 ${txt||"Keine Berechtigung"}</div>`;return c;}
+
+// --- ROUTES ---
+const routes={
+login(){const c=el("div","grid cols-2");const left=el("div","card");left.innerHTML=`<h3>Login</h3><div class="muted">Der Seiteninhaber legt Accounts an.</div><div class="row" style="margin-top:10px"><input class="input" id="u" placeholder="Username"><input class="input" id="p" placeholder="Passwort" type="password"><button class="btn primary" id="go">Einloggen</button></div>`;left.querySelector("#go").onclick=async()=>{const u=left.querySelector("#u").value.trim();const p=left.querySelector("#p").value;const hit=(await getUsers()).find(x=>x.username===u&&x.pass===p);if(!hit)return toast("Falsche Zugangsdaten",true);loginAs(hit);};const right=el("div","card center");right.innerHTML=`<img src="pepecraft.png" alt="PepeCraft" style="max-height:220px;border-radius:16px;border:1px solid #0006">`;c.append(left,right);return c;},
+
+home: async function(){const home=await getHome();const wrap=el("div","grid cols-2");const hero=el("div","card");hero.innerHTML=`<img src="${home.hero||'pepecraft.png'}" style="width:100%;border-radius:14px;border:1px solid #0006"><h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft'}</h2><p class="muted">${home.content||''}</p><div class="row"><span class="badge">Clan Portal</span><span class="badge">Minecraft</span><span class="badge">Support</span></div>`;wrap.appendChild(hero);const stats=el("div","grid");stats.appendChild(cardKPI("Mitglieder",(await getMembers()).length));stats.appendChild(cardKPI("Accounts",(await getUsers()).length));stats.appendChild(cardKPI("Support-Tickets",(await getSupports()).length));wrap.appendChild(stats);return wrap;},
+
+members: async function(){const wrap=el("div","grid");wrap.appendChild(await cardMembersTable(can("admin")));if(can("admin"))wrap.appendChild(cardMemberForm());return wrap;},
+
+team: async function(){const staff=(await getUsers()).filter(u=>u.role!=="member");const card=el("div","card");card.innerHTML="<h3>Teammitglieder</h3>";const rows=staff.map(u=>[`<img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b>`,`<span class="tag">${u.role}</span>`,new Date(u.created).toLocaleDateString(),""]);card.appendChild(table(["Avatar","Username","Rolle","Seit"],rows));return card;},
+
+links: async function(){const wrap=el("div","grid cols-2");const data=await getLinks();const list=el("div","card");list.innerHTML="<h3>Links</h3>";const tbl=table(["Name","URL","Aktion"],data.map((l,i)=>[`<span class="tag">${l.name}</span>`,`<a href="${l.url}" target="_blank">${l.url}</a>`,`<button class="btn small bad" onclick="delLink(${i})">Löschen</button>`]));list.appendChild(tbl);wrap.appendChild(list);return wrap;},
+
+support: async function(){const wrap=el("div","grid");const head=el("div","grid cols-3");const supports=await getSupports();head.append(kpiBox("Deine Einträge",supports.filter(s=>s.by===session()?.username).length));head.append(kpiBox("Gesamt Supports",supports.length));wrap.appendChild(head);return wrap;},
+
+accounts: async function(){if(!can("admin"))return denyCard();const wrap=el("div","grid");wrap.appendChild(await cardUsersTable());return wrap;},
+
+admin: async function(){if(!can("admin"))return denyCard();const wrap=el("div","grid cols-2");wrap.appendChild(cardCreateUser());wrap.appendChild(await cardUsersTable());wrap.appendChild(await cardMembersTable(true));wrap.appendChild(cardMemberForm());return wrap;},
+
+profile: async function(){const me=session();if(!me)return denyCard("Bitte zuerst einloggen.");const card=el("div","card");card.innerHTML=`<h3>Profil</h3><div class="flex"><img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}"><div class="row"><input class="input" id="np" type="password" placeholder="Neues Passwort"><input class="input" id="av" type="file" accept="image/*"></div><button class="btn primary right" id="savep">Speichern</button></div>`;card.querySelector("#savep").onclick=async()=>{const users=await getUsers();const idx=users.findIndex(u=>u.id===me.id);const np=card.querySelector("#np").value;const file=card.querySelector("#av").files[0];if(np){await supabase.from('users').update({pass:np}).eq('id',me.id);users[idx].pass=np;}if(file){const b64=await fileToDataUrl(file);await supabase.from('users').update({avatar:b64}).eq('id',me.id);users[idx].avatar=b64;}loginAs(users[idx]);toast("Profil aktualisiert");};return card;}
+};
+
+// --- UI CARDS ---
+function cardCreateUser(){const c=el("div","card");c.innerHTML=`<h3>Account erstellen</h3><div class="row"><input class="input" id="cu_u" placeholder="Username"><input class="input" id="cu_p" placeholder="Passwort"><select class="input" id="cu_r"><option value="member">member</option><option value="admin">admin</option><option value="owner">owner</option></select><button class="btn primary" id="cu_s">Anlegen</button></div>`;c.querySelector("#cu_s").onclick=async()=>{const u=c.querySelector("#cu_u").value.trim();const p=c.querySelector("#cu_p").value.trim();const r=c.querySelector("#cu_r").value;if(!u||!p)return toast("Username & Passwort angeben",true);const {data:existing}=await supabase.from('users').select('*').eq('username',u).single();if(existing)return toast("Username existiert bereits",true);await supabase.from('users').insert([{username:u,pass:p,role:r,avatar:"",created:Date.now()}]);toast("Account erstellt");routeTo("admin");};return c;}
+async function cardUsersTable(){const c=el("div","card");c.innerHTML="<h3>Alle Konten</h3>";const users=await getUsers();const rows=users.map(u=>[`<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,`<span class="tag">${u.role}</span>`,new Date(u.created).toLocaleDateString(),session()?.role==="owner"?`<button class="btn small bad" onclick="delUser(${u.id})">Löschen</button>`:""]);c.appendChild(table(["Avatar/Name","Rolle","Seit","Aktion"],rows));return c;}
+async function cardMembersTable(admin=false){const c=el("div","card");c.innerHTML="<h3>Mitglieder</h3>";const members=await getMembers();const rows=members.map((m,i)=>[m.ign,m.discord,(m.ranks||[]).join(","),admin?`<button class="btn small bad" onclick="delMember(${i})">Löschen</button>`:""]);c.appendChild(table(["IGN","Discord","Ränge","Aktion"],rows));return c;}
+function cardMemberForm(){const c=el("div","card");c.innerHTML=`<h3>Mitglied hinzufügen</h3><div class="row"><input class="input" id="m_ign" placeholder="IGN"><input class="input" id="m_dis" placeholder="Discord"><input class="input" id="m_rnk" placeholder="Ränge, Komma getrennt"><button class="btn primary" id="m_s">Hinzufügen</button></div>`;c.querySelector("#m_s").onclick=async()=>{const ign=c.querySelector("#m_ign").value.trim();const dis=c.querySelector("#m_dis").value.trim();const rnk=c.querySelector("#m_rnk").value.split(",").map(x=>x.trim());if(!ign)return toast("IGN fehlt",true);const arr=await getMembers();arr.push({ign,discord:dis,ranks:rnk});await setMembers(arr);toast("Mitglied hinzugefügt");routeTo("members");};return c;}
+
+// --- ROUTING ---
+async function routeTo(name){qs("#route").innerHTML="Lade...";const content=await (typeof routes[name]==="function"?routes[name]():routes[name]);qs("#route").innerHTML="";qs("#route").appendChild(content);}
+
+// --- INIT ---
+document.addEventListener("DOMContentLoaded",()=>{renderTop();routeTo(session()? "home":"login");});
 </script>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <img src="pepecraft.png" alt="PepeCraft Logo" />
-        <div>
-          <h1>PEPECRAFT – Clan Portal</h1>
-          <div class="muted" id="who"></div>
-        </div>
-      </div>
-      <nav class="nav" id="topNav"></nav>
-    </header>
-
-    <!-- ROUTES -->
-    <main id="route"></main>
-
-    <footer class="center">
-      <div class="muted">© <span id="yr"></span> PepeCraft · Teamseite</div>
-    </footer>
+<header class="wrap">
+  <div class="brand">
+    <img src="pepecraft.png" alt="Logo">
+    <h1>PepeCraft</h1>
   </div>
-
-  <!-- Toast -->
-  <div id="toast" class="toast hidden"></div>
-
-<script>
-/* =========================
-   Tiny SPA with localStorage
-   Roles: owner, admin, member
-   ========================= */
-const qs = s => document.querySelector(s);
-const el = (t,cls) => Object.assign(document.createElement(t), { className: cls||"" });
-
-const DB = {
-  users: "pc_users",
-  session: "pc_session",
-  home: "pc_home",
-  links: "pc_links",
-  members: "pc_members",
-  supports: "pc_supports"
-};
-
-// seed default owner
-(function seed(){
-  const users = JSON.parse(localStorage.getItem(DB.users)||"[]");
-  if(!users.find(u=>u.role==="owner")){
-    users.push({
-      id: crypto.randomUUID(),
-      username: "RandomAuto",
-      pass: "RandomAuto",
-      role: "owner",
-      avatar: "",
-      created: Date.now()
-    });
-    localStorage.setItem(DB.users, JSON.stringify(users));
-    localStorage.setItem(DB.home, JSON.stringify({
-      title: "Willkommen bei PepeCraft",
-      content: "Diese Startseite kannst du im Adminpanel bearbeiten.",
-      hero: "pepecraft.png"
-    }));
-  }
-  document.getElementById("yr").textContent = new Date().getFullYear();
-})();
-
-function getUsers(){ return JSON.parse(localStorage.getItem(DB.users)||"[]"); }
-function setUsers(arr){ localStorage.setItem(DB.users, JSON.stringify(arr)); }
-function session(){ return JSON.parse(localStorage.getItem(DB.session)||"null"); }
-function loginAs(u){ localStorage.setItem(DB.session, JSON.stringify(u)); renderTop(); routeTo("home"); toast("Angemeldet als "+u.username); }
-function logout(){ localStorage.removeItem(DB.session); renderTop(); routeTo("login"); }
-function saveHome(v){ localStorage.setItem(DB.home, JSON.stringify(v)); }
-function getHome(){ return JSON.parse(localStorage.getItem(DB.home)||"{}"); }
-function getLinks(){ return JSON.parse(localStorage.getItem(DB.links)||"[]"); }
-function setLinks(x){ localStorage.setItem(DB.links, JSON.stringify(x)); }
-function getMembers(){ return JSON.parse(localStorage.getItem(DB.members)||"[]"); }
-function setMembers(x){ localStorage.setItem(DB.members, JSON.stringify(x)); }
-function getSupports(){ return JSON.parse(localStorage.getItem(DB.supports)||"[]"); }
-function setSupports(x){ localStorage.setItem(DB.supports, JSON.stringify(x)); }
-
-function can(view){
-  const me = session();
-  if(!me) return false;
-  if(me.role==="owner") return true;
-  const map = {
-    admin: ["admin","owner"],
-    member: ["member","admin","owner"]
-  };
-  if(view==="owner") return me.role==="owner";
-  if(view==="admin") return map.admin.includes(me.role);
-  return map.member.includes(me.role);
-}
-
-function renderTop(){
-  const me = session();
-  qs("#who").textContent = me? `Eingeloggt: ${me.username} (${me.role})` : "Nicht eingeloggt";
-  const nav = qs("#topNav");
-  nav.innerHTML = "";
-  const add = (label, view, guard) => {
-    if(guard===false) return;
-    const b = el("button","btn small");
-    b.textContent = label;
-    b.onclick = () => routeTo(view);
-    nav.appendChild(b);
-  };
-  add("Start", "home", true);
-  add("Mitglieder", "members", true);
-  add("Team", "team", true);
-  add("Links", "links", true);
-  add("Support", "support", true);
-  add("Konten", "accounts", can("admin"));
-  add("Adminpanel", "admin", can("admin"));
-  if(me){
-    const prof = el("button","btn small");
-    prof.textContent = "Profil";
-    prof.onclick = ()=>routeTo("profile");
-    nav.appendChild(prof);
-
-    const out = el("button","btn small bad");
-    out.textContent = "Logout";
-    out.onclick = logout;
-    nav.appendChild(out);
-  } else {
-    const inn = el("button","btn small primary");
-    inn.textContent = "Login";
-    inn.onclick = ()=>routeTo("login");
-    nav.appendChild(inn);
-  }
-}
-
-/* Routing */
-const routes = {
-  login(){
-    const c = el("div","grid cols-2");
-    const left = el("div","card");
-    left.innerHTML = `
-      <h3>Login</h3>
-      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>RandomAuto</code></div>
-      <div class="row" style="margin-top:10px">
-        <input class="input" id="u" placeholder="Username" />
-        <input class="input" id="p" placeholder="Passwort" type="password" />
-        <button class="btn primary" id="go">Einloggen</button>
-      </div>`;
-    left.querySelector("#go").onclick = ()=>{
-      const u = left.querySelector("#u").value.trim();
-      const p = left.querySelector("#p").value;
-      const hit = getUsers().find(x=>x.username===u && x.pass===p);
-      if(!hit) return toast("Falsche Zugangsdaten", true);
-      loginAs(hit);
-    };
-    const right = el("div","card center");
-    right.innerHTML = `<img src="pepecraft.png" alt="PepeCraft" style="max-height:220px;border-radius:16px;border:1px solid #0006">`;
-    c.append(left,right);
-    return c;
-  },
-
-  home(){
-    const home = getHome();
-    const me = session();
-    const wrap = el("div","grid cols-2");
-
-    const hero = el("div","card");
-    hero.innerHTML = `
-      <img src="${home.hero||'pepecraft.png'}" alt="Hero" style="width:100%;border-radius:14px;border:1px solid #0006">
-      <h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft'}</h2>
-      <p class="muted">${home.content||''}</p>
-      <div class="row">
-        <span class="badge">Clan Portal</span>
-        <span class="badge">Minecraft</span>
-        <span class="badge">Support</span>
-      </div>`;
-    wrap.appendChild(hero);
-
-    const stats = el("div","grid");
-    stats.appendChild(cardKPI("Mitglieder", getMembers().length));
-    stats.appendChild(cardKPI("Accounts", getUsers().length));
-    stats.appendChild(cardKPI("Support-Tickets", getSupports().length));
-    wrap.appendChild(stats);
-
-    if(can("admin")){
-      const edit = el("div","card");
-      edit.innerHTML = `
-        <h3>Startseite bearbeiten</h3>
-        <div class="row"><input id="t" class="input" value="${home.title||''}" placeholder="Titel"></div>
-        <div class="row"><input id="h" class="input" value="${home.hero||'pepecraft.png'}" placeholder="Hero-Bildpfad (z.B. pepecraft.png)"></div>
-        <div class="row"><textarea id="c" class="input" placeholder="Inhalt">${home.content||''}</textarea></div>
-        <button class="btn primary" id="save">Speichern</button>`;
-      edit.querySelector("#save").onclick = ()=>{
-        saveHome({ title: edit.querySelector("#t").value, hero: edit.querySelector("#h").value, content: edit.querySelector("#c").value });
-        toast("Startseite aktualisiert");
-        routeTo("home");
-      };
-      wrap.appendChild(edit);
-    }
-    return wrap;
-  },
-
-  members(){
-    const wrap = el("div","grid");
-    wrap.appendChild(cardMembersTable(can("admin")));
-    if(can("admin")) wrap.appendChild(cardMemberForm());
-    return wrap;
-  },
-
-  team(){
-    // Team = alle Nutzer mit Rolle admin/owner
-    const staff = getUsers().filter(u=>u.role!=="member");
-    const card = el("div","card");
-    card.innerHTML = `<h3>Teammitglieder</h3>`;
-    const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
-      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" alt="">`,
-      u.username,
-      `<span class="tag">${u.role}</span>`,
-      new Date(u.created).toLocaleDateString()
-    ]));
-    card.appendChild(tbl);
-    return card;
-  },
-
-  links(){
-    const wrap = el("div","grid cols-2");
-    const list = el("div","card");
-    list.innerHTML = `<h3>Links</h3>`;
-    const data = getLinks();
-    const tbl = table(["Name","URL","Aktion"], data.map((l,i)=>[
-      `<span class="tag">${l.name}</span>`,
-      `<a href="${l.url}" target="_blank">${l.url}</a>`,
-      can("admin") ? `<button class="btn small bad" onclick="delLink(${i})">Löschen</button>` : ""
-    ]));
-    list.appendChild(tbl);
-    wrap.appendChild(list);
-
-    if(can("admin")){
-      const form = el("div","card");
-      form.innerHTML = `
-        <h3>Link hinzufügen</h3>
-        <div class="row">
-          <input class="input" id="ln" placeholder="Name">
-          <input class="input" id="lu" placeholder="https://...">
-          <button class="btn primary" id="ls">Speichern</button>
-        </div>`;
-      form.querySelector("#ls").onclick = ()=>{
-        const n=form.querySelector("#ln").value.trim(), u=form.querySelector("#lu").value.trim();
-        if(!n||!u) return toast("Name & URL angeben",true);
-        const x = getLinks(); x.push({name:n,url:u}); setLinks(x); toast("Link gespeichert"); routeTo("links");
-      };
-      wrap.appendChild(form);
-    }
-    return wrap;
-  },
-
-async function support() {
-  const wrap = el("div","grid");
-
-  // header cards
-  const head = el("div","grid cols-3");
-  const supports = await getSupports();
-  head.append(kpiBox("Deine Einträge", supports.filter(s=>s.by===session()?.username).length));
-  head.append(kpiBox("Gesamt Supports", supports.length));
-  head.append(kpiBox("Teamranking (Top)", topRanking()));
-  wrap.appendChild(head);
-
-  // form
-  const form = el("div","card");
-  form.innerHTML = `
-    <h3>🎧 Neuen Support eintragen</h3>
-    <div class="row">
-      <div style="flex:1">
-        <label class="muted">Dein Name</label>
-        <input class="input" id="s_by" value="${session()?.username||''}" placeholder="Dein Name">
-      </div>
-      <div style="flex:1">
-        <label class="muted">Spieler ID (Discord)</label>
-        <input class="input" id="s_who" placeholder="Discord ID + Grund eingeben">
-      </div>
-    </div>
-    <div class="support-type" style="margin:12px 0">
-      <button class="btn good"   onclick="markStatus('gelöst')">✔ Gelöst</button>
-      <button class="btn bad"    onclick="markStatus('nicht_gelöst')">✖ Nicht Gelöst</button>
-      <button class="btn"        onclick="markStatus('klärung')">❓ Weitere Klärung</button>
-      <button class="btn warn"   onclick="markStatus('weitergeleitet')">➡ Weitergeleitet</button>
-    </div>
-    <textarea class="input" id="s_desc" placeholder="Kurzbeschreibung"></textarea>
-    <div class="row" style="margin-top:10px">
-      <button class="btn primary" id="s_save">📝 Support eintragen</button>
-    </div>`;
-
-  let currentStatus = "klärung";
-  window.markStatus = s => { currentStatus = s; toast("Status: "+s); };
-
-  form.querySelector("#s_save").onclick = async () => {
-    const by = form.querySelector("#s_by").value.trim();
-    const who = form.querySelector("#s_who").value.trim();
-    const d = form.querySelector("#s_desc").value.trim();
-    if(!by || !who) return toast("Dein Name und Spielername erforderlich", true);
-
-    const arr = await getSupports();
-    arr.push({id: crypto.randomUUID(), by, who, desc: d, status: currentStatus, at: Date.now()});
-    await setSupports(arr);
-    toast("Support gespeichert");
-    routeTo("support");
-  };
-
-  wrap.appendChild(form);
-
-  // list
-  const list = el("div","card");
-  list.innerHTML = `<h3>Support-Einträge</h3>`;
-
-  const tbl = table(
-    ["Zeit","Von","Spieler","Status","Beschreibung","Aktion"],
-    (await getSupports()).slice().reverse().map(s => [
-      new Date(s.at).toLocaleString(),
-      s.by,
-      s.who,
-      `<span class="tag">${s.status}</span>`,
-      s.desc || "",
-      can("admin") ? `<button class="btn small bad" onclick="delSupport('${s.id}')">Löschen</button>` : ""
-    ])
-  );
-
-  list.appendChild(tbl);
-  wrap.appendChild(list);
-
-  return wrap;
-},
-
-  accounts(){
-    if(!can("admin")) return denyCard();
-    const wrap = el("div","grid");
-    wrap.appendChild(cardUsersTable());
-    return wrap;
-  },
-
-  admin(){
-    if(!can("admin")) return denyCard();
-    const wrap = el("div","grid cols-2");
-    wrap.appendChild(cardCreateUser());
-    wrap.appendChild(cardUsersTable());
-    wrap.appendChild(cardMembersTable(true));
-    wrap.appendChild(cardMemberForm());
-    return wrap;
-  },
-
-  profile(){
-    const me=session(); if(!me) return denyCard("Bitte zuerst einloggen.");
-    const card = el("div","card");
-    card.innerHTML = `
-      <h3>Profil</h3>
-      <div class="flex">
-        <img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}" alt="">
-        <div class="row">
-          <input class="input" id="np" type="password" placeholder="Neues Passwort (leer = unverändert)">
-          <input class="input" id="av" type="file" placeholder="Neues Profilbild" accept="image/*">
-        </div>
-        <button class="btn primary right" id="savep">Speichern</button>
-      </div>`;
-    card.querySelector("#savep").onclick = async ()=>{
-      const users=getUsers();
-      const idx=users.findIndex(u=>u.id===me.id);
-      const np=card.querySelector("#np").value;
-      const file=card.querySelector("#av").files[0];
-      if(np) users[idx].pass=np;
-      if(file){
-        const b64 = await fileToDataUrl(file);
-        users[idx].avatar=b64;
-      }
-      setUsers(users);
-      loginAs(users[idx]); // refresh session
-      toast("Profil aktualisiert");
-    };
-    return card;
-  }
-};
-
-/* Components */
-function cardKPI(label,val){
-  const c = el("div","kpi");
-  c.innerHTML = `<div class="muted">${label}</div><div style="font-size:28px;font-weight:800">${val}</div>`;
-  return c;
-}
-function kpiBox(label,val){
-  const c = el("div","card");
-  c.innerHTML = `<div class="muted">${label}</div><div style="font-size:24px;font-weight:800;margin-top:6px">${typeof val==="string"?val:val}</div>`;
-  return c;
-}
-function table(headers, rows){
-  const t = el("table","table");
-  const thead = el("thead"), tr = el("tr");
-  headers.forEach(h=>{ const th=el("th"); th.innerHTML=h; tr.appendChild(th); });
-  thead.appendChild(tr); t.appendChild(thead);
-  const tb = el("tbody");
-  rows.forEach(r=>{
-    const tr = el("tr");
-    r.forEach(c=>{ const td=el("td"); td.innerHTML = c; tr.appendChild(td); });
-    tb.appendChild(tr);
-  });
-  t.appendChild(tb);
-  return t;
-}
-function denyCard(txt){
-  const c = el("div","card");
-  c.innerHTML = `<div class="status">🔒 ${txt||"Keine Berechtigung"}</div>`;
-  return c;
-}
-
-
-  async function createUser(u, p, r) {
-    const { data, error } = await supabase.from('users').insert([
-      { username: u, pass: p, role: r, avatar:"", created: Date.now() }
-    ]);
-    if(error) return toast(error.message, true);
-    toast("Account erstellt");
-    routeTo("admin");
-  }  
-
-  function cardCreateUser(){
-    const c = el("div","card");
-    c.innerHTML = `
-      <h3>Account erstellen</h3>
-      <div class="row">
-        <input class="input" id="cu_u" placeholder="Username">
-        <input class="input" id="cu_p" placeholder="Passwort">
-        <select class="input" id="cu_r">
-          <option value="member">member</option>
-          <option value="admin">admin</option>
-          <option value="owner">owner</option>
-        </select>
-        <button class="btn primary" id="cu_s">Anlegen</button>
-      </div>`;
-
-    c.querySelector("#cu_s").onclick = async ()=>{
-      const u = c.querySelector("#cu_u").value.trim();
-      const p = c.querySelector("#cu_p").value.trim();
-      const r = c.querySelector("#cu_r").value;
-      if(!u || !p) return toast("Username & Passwort angeben", true);
-
-      // Prüfen, ob Username schon existiert
-      const { data: existing, error: err } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', u)
-        .single();
-
-      if(existing) return toast("Username existiert bereits", true);
-
-      // User erstellen
-      await createUser(u, p, r);
-    };
-
-    return c;
-  }
-
-  // Accounts global speichern
-  async function getUsers() {
-    const { data, error } = await supabase.from('users').select('*').order('created');
-    if(error) { toast(error.message,true); return []; }
-    return data;
-  }
-
-  async function setUsers(users) {
-    // Supabase speichert automatisch beim create/update; keine lokale Speicherung nötig
-    // Optional: Mitgliederliste aktualisieren
-    const members = users.map(u => ({ign: u.username, discord:"", ranks:[u.role]}));
-    await supabase.from('members').delete().neq('ign', ''); // alte löschen
-    await supabase.from('members').insert(members);
-  }
-
-  async function getMembers() {
-    const { data, error } = await supabase.from('members').select('*');
-    if(error){ toast(error.message,true); return []; }
-    return data;
-  }
-
-  async function setMembers(arr){
-    await supabase.from('members').delete().neq('ign',''); // alte löschen
-    await supabase.from('members').insert(arr);
-  }
-
-  async function delUser(id){
-    if(!confirm("Konto wirklich löschen?")) return;
-    await supabase.from('users').delete().eq('id',id);
-    toast("Konto gelöscht"); routeTo("accounts");
-  }
-
-  async function setRole(id,role){
-    await supabase.from('users').update({role}).eq('id',id);
-    toast("Rolle geändert"); routeTo("accounts");
-  }
-
-  async function delMember(i){
-    const arr = await getMembers();
-    arr.splice(i,1);
-    await setMembers(arr);
-    toast("Mitglied entfernt"); routeTo("members");
-  }
-
-  // cardCreateUser
-  function cardCreateUser(){
-    const c = el("div","card");
-    c.innerHTML = `
-      <h3>Account erstellen</h3>
-      <div class="row">
-        <input class="input" id="cu_u" placeholder="Username">
-        <input class="input" id="cu_p" placeholder="Passwort">
-        <select class="input" id="cu_r">
-          <option value="member">member</option>
-          <option value="admin">admin</option>
-          <option value="owner">owner</option>
-        </select>
-        <button class="btn primary" id="cu_s">Anlegen</button>
-      </div>`;
-
-    c.querySelector("#cu_s").onclick = async ()=>{
-      const u = c.querySelector("#cu_u").value.trim();
-      const p = c.querySelector("#cu_p").value.trim();
-      const r = c.querySelector("#cu_r").value;
-      if(!u||!p) return toast("Username & Passwort angeben", true);
-
-      const { data: existing } = await supabase.from('users').select('*').eq('username',u).single();
-      if(existing) return toast("Username existiert bereits", true);
-
-      await supabase.from('users').insert([{username:u,pass:p,role:r,avatar:"",created:Date.now()}]);
-      toast("Account erstellt"); routeTo("admin");
-    };
-
-    return c;
-  }
-
-  // cardUsersTable
-  async function cardUsersTable(){
-    const c = el("div","card");
-    c.innerHTML = `<h3>Alle Konten</h3>`;
-    const users = await getUsers();
-    const rows = users.map(u=>[
-      `<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,
-      `<span class="tag">${u.role}</span>`,
-      new Date(u.created).toLocaleDateString(),
-      session()?.id===u.id? "—" : `
-        <div class="row">
-          <button class="btn small" onclick="setRole('${u.id}','member')">member</button>
-          <button class="btn small" onclick="setRole('${u.id}','admin')">admin</button>
-          ${can('RandomAuto')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
-          <button class="btn small bad" onclick="delUser('${u.id}')">löschen</button>
-        </div>`
-    ]);
-    c.appendChild(table(["Konto","Rolle","Seit","Aktionen"], rows));
-    return c;
-  }
-
-  // cardMembersTable
-  async function cardMembersTable(editable){
-    const c = el("div","card");
-    c.innerHTML = `<h3>Clanmitglieder</h3>`;
-    const members = await getMembers();
-    const rows = members.map((m,i)=>[
-      `<b>${m.ign}</b>`,
-      m.discord,
-      m.ranks.join(", "),
-      editable?`<button class="btn small bad" onclick="delMember(${i})">Entfernen</button>`:""
-    ]);
-    c.appendChild(table(["Ingame","Discord","Ränge","Aktion"], rows));
-    return c;
-  }
-
-  // cardMemberForm
-  function cardMemberForm(){
-    const c = el("div","card");
-    c.innerHTML = `
-      <h3>Mitglied eintragen</h3>
-      <div class="row">
-        <input id="mi" class="input" placeholder="Ingame-Name">
-        <input id="md" class="input" placeholder="Discord-Name">
-        <input id="mr" class="input" placeholder="Wichtigste Ränge (Komma getrennt)">
-        <button class="btn primary" id="ms">Speichern</button>
-      </div>`;
-    c.querySelector("#ms").onclick = async ()=>{
-      const ign=c.querySelector("#mi").value.trim();
-      const disc=c.querySelector("#md").value.trim();
-      const ranks=c.querySelector("#mr").value.split(",").map(s=>s.trim()).filter(Boolean);
-      if(!ign) return toast("Ingame-Name erforderlich", true);
-      const arr = await getMembers();
-      arr.push({ign,discord:disc,ranks});
-      await setMembers(arr);
-      toast("Mitglied gespeichert"); routeTo("members");
-    };
-    return c;
-  }
-
-function fileToDataUrl(file){
-  return new Promise(res=>{
-    const r = new FileReader();
-    r.onload = e=>res(e.target.result);
-    r.readAsDataURL(file);
-  });
-}
-
-function toast(msg, err){
-  const t = qs("#toast");
-  t.textContent = msg;
-  t.style.borderColor = err? "#ff6b81" : "#0006";
-  t.classList.remove("hidden");
-  setTimeout(()=>t.classList.add("hidden"), 2000);
-}
-
-function routeTo(name){
-  window.location.hash = name;
-  const host = qs("#route"); host.innerHTML = "";
-  const view = routes[name] || routes.home;
-  host.appendChild(view());
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-/* expose some handlers to window for table buttons */
-window.setRole=setRole; window.delUser=delUser; window.delMember=delMember;
-window.delLink=delLink; window.delSupport=delSupport;
-
-/* boot */
-renderTop();
-routeTo((location.hash||"#home").slice(1));
-window.addEventListener("hashchange", ()=>routeTo((location.hash||"#home").slice(1)));
-</script>
+  <div id="topNav" class="nav"></div>
+</header>
+<main class="wrap" id="route"></main>
+<footer class="wrap">&copy; 2025 PepeCraft Clan Portal</footer>
+<div id="toast" class="toast hidden"></div>
 </body>
 </html>
