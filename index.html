@@ -73,7 +73,7 @@
     <main id="route"></main>
 
     <footer class="center">
-      <div class="muted">© <span id="yr"></span> PepeCraft · Demo (LocalStorage)</div>
+      <div class="muted">© <span id="yr"></span> PepeCraft · Teamseite</div>
     </footer>
   </div>
 
@@ -103,8 +103,8 @@ const DB = {
   if(!users.find(u=>u.role==="owner")){
     users.push({
       id: crypto.randomUUID(),
-      username: "owner",
-      pass: "changeme",
+      username: "RandomAuto",
+      pass: "RandomAuto",
       role: "owner",
       avatar: "",
       created: Date.now()
@@ -190,7 +190,7 @@ const routes = {
     const left = el("div","card");
     left.innerHTML = `
       <h3>Login</h3>
-      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>owner / changeme</code></div>
+      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>RandomAuto</code></div>
       <div class="row" style="margin-top:10px">
         <input class="input" id="u" placeholder="Username" />
         <input class="input" id="p" placeholder="Passwort" type="password" />
