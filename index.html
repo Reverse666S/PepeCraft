@@ -485,7 +485,7 @@ function cardUsersTable(){
       <div class="row">
         <button class="btn small" onclick="setRole('${u.id}','member')">member</button>
         <button class="btn small" onclick="setRole('${u.id}','admin')">admin</button>
-        ${can('owner')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
+        ${can('RandomAuto')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
         <button class="btn small bad" onclick="delUser('${u.id}')">löschen</button>
       </div>`
   ]);
