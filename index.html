@@ -309,7 +309,7 @@ const routes = {
     const wrap = el("div","grid");
     // header cards
     const head = el("div","grid cols-3");
-    head.append(kpiBox("Deine Einträge diese Woche", getSupports().filter(s=>s.by===session()?.username).length));
+    head.append(kpiBox("Deine Einträge", getSupports().filter(s=>s.by===session()?.username).length));
     head.append(kpiBox("Gesamt Supports", getSupports().length));
     head.append(kpiBox("Teamranking (Top)", topRanking()));
     wrap.appendChild(head);
@@ -324,8 +324,8 @@ const routes = {
           <input class="input" id="s_by" value="${session()?.username||''}" placeholder="Dein Name">
         </div>
         <div style="flex:1">
-          <label class="muted">Spieler Name (Discord/Minecraft)</label>
-          <input class="input" id="s_who" placeholder="UUID oder Discord ID + Grund eingeben">
+          <label class="muted">Spieler ID (Discord)</label>
+          <input class="input" id="s_who" placeholder="Discord ID + Grund eingeben">
         </div>
       </div>
       <div class="support-type" style="margin:12px 0">
