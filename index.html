@@ -56,6 +56,13 @@
     .support-type button{height:70px}
     .toast{position:fixed;bottom:16px;right:16px;background:#1d2244;border:1px solid #0006;padding:12px 14px;border-radius:12px}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Supabase Client initialisieren
+  const SUPABASE_URL = "https://supabase.com/dashboard/project/nejriqvvzdffkmycrair";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E";
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
 </head>
 <body>
   <div class="wrap">
@@ -446,33 +453,52 @@ function denyCard(txt){
   return c;
 }
 
-function cardCreateUser(){
-  const c = el("div","card");
-  c.innerHTML = `
-    <h3>Account erstellen</h3>
-    <div class="row">
-      <input class="input" id="cu_u" placeholder="Username">
-      <input class="input" id="cu_p" placeholder="Passwort">
-      <select class="input" id="cu_r">
-        <option value="member">member</option>
-        <option value="admin">admin</option>
-        <option value="owner">owner</option>
-      </select>
-      <button class="btn primary" id="cu_s">Anlegen</button>
-    </div>`;
-  c.querySelector("#cu_s").onclick = ()=>{
-    const u=c.querySelector("#cu_u").value.trim();
-    const p=c.querySelector("#cu_p").value.trim();
-    const r=c.querySelector("#cu_r").value;
-    if(!u||!p) return toast("Username & Passwort angeben", true);
-    const users=getUsers();
-    if(users.find(x=>x.username===u)) return toast("Username existiert bereits", true);
-    users.push({id:crypto.randomUUID(),username:u,pass:p,role:r,avatar:"",created:Date.now()});
-    setUsers(users); toast("Account erstellt");
+
+  async function createUser(u, p, r) {
+    const { data, error } = await supabase.from('users').insert([
+      { username: u, pass: p, role: r, avatar:"", created: Date.now() }
+    ]);
+    if(error) return toast(error.message, true);
+    toast("Account erstellt");
     routeTo("admin");
-  };
-  return c;
-}
+  }  
+
+  function cardCreateUser(){
+    const c = el("div","card");
+    c.innerHTML = `
+      <h3>Account erstellen</h3>
+      <div class="row">
+        <input class="input" id="cu_u" placeholder="Username">
+        <input class="input" id="cu_p" placeholder="Passwort">
+        <select class="input" id="cu_r">
+          <option value="member">member</option>
+          <option value="admin">admin</option>
+          <option value="owner">owner</option>
+        </select>
+        <button class="btn primary" id="cu_s">Anlegen</button>
+      </div>`;
+
+    c.querySelector("#cu_s").onclick = async ()=>{
+      const u = c.querySelector("#cu_u").value.trim();
+      const p = c.querySelector("#cu_p").value.trim();
+      const r = c.querySelector("#cu_r").value;
+      if(!u || !p) return toast("Username & Passwort angeben", true);
+
+      // Prüfen, ob Username schon existiert
+      const { data: existing, error: err } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', u)
+        .single();
+
+      if(existing) return toast("Username existiert bereits", true);
+
+      // User erstellen
+      await createUser(u, p, r);
+    };
+
+    return c;
+  }
 
 function cardUsersTable(){
   const c = el("div","card");
