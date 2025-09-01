@@ -80,19 +80,32 @@ login(){
 },
 
 home: async function(){
-    const {data:home}=await supabase.from('home').select('*').limit(1).single() || {title:"Willkommen",content:"Bearbeite das Adminpanel",hero:"pepecraft.png"};
-    const wrap=el("div","grid cols-2");
-    const hero=el("div","card"); hero.innerHTML=`<img src="${home.hero||'pepecraft.png'}" style="width:100%;border-radius:14px;border:1px solid #0006"><h2 style="margin:12px 0 6px 0">${home.title}</h2><p class="muted">${home.content}</p><div class="row"><span class="badge">Clan Portal</span><span class="badge">Minecraft</span><span class="badge">Support</span></div>`;
-    wrap.appendChild(hero);
+    let { data: home, error } = await supabase.from('home').select('*').limit(1).single();
+    if(error || !home) home = {title:"Willkommen", content:"Bearbeite das Adminpanel", hero:"pepecraft.png"};
 
-    const members=await supabase.from('members').select('*');
-    const users=await supabase.from('users').select('*');
-    const supports=await supabase.from('supports').select('*');
-    const stats=el("div","grid");
-    stats.appendChild(cardKPI("Mitglieder",members.data.length));
-    stats.appendChild(cardKPI("Accounts",users.data.length));
-    stats.appendChild(cardKPI("Support-Tickets",supports.data.length));
+    const wrap = el("div","grid cols-2");
+    const heroCard = el("div","card");
+    heroCard.innerHTML = `
+        <img src="${home.hero}" style="width:100%;border-radius:14px;border:1px solid #0006">
+        <h2 style="margin:12px 0 6px 0">${home.title}</h2>
+        <p class="muted">${home.content}</p>
+        <div class="row">
+            <span class="badge">Clan Portal</span>
+            <span class="badge">Minecraft</span>
+            <span class="badge">Support</span>
+        </div>`;
+    wrap.appendChild(heroCard);
+
+    const { data: members } = await supabase.from('members').select('*');
+    const { data: users } = await supabase.from('users').select('*');
+    const { data: supports } = await supabase.from('supports').select('*');
+
+    const stats = el("div","grid");
+    stats.appendChild(cardKPI("Mitglieder", members ? members.length : 0));
+    stats.appendChild(cardKPI("Accounts", users ? users.length : 0));
+    stats.appendChild(cardKPI("Support-Tickets", supports ? supports.length : 0));
     wrap.appendChild(stats);
+
     return wrap;
 },
 
