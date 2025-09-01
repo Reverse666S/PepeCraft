@@ -312,67 +312,81 @@ const routes = {
     return wrap;
   },
 
-  support(){
-    const wrap = el("div","grid");
-    // header cards
-    const head = el("div","grid cols-3");
-    head.append(kpiBox("Deine Einträge", getSupports().filter(s=>s.by===session()?.username).length));
-    head.append(kpiBox("Gesamt Supports", getSupports().length));
-    head.append(kpiBox("Teamranking (Top)", topRanking()));
-    wrap.appendChild(head);
+async function support() {
+  const wrap = el("div","grid");
 
-    // form like screenshot
-    const form = el("div","card");
-    form.innerHTML = `
-      <h3>🎧 Neuen Support eintragen</h3>
-      <div class="row">
-        <div style="flex:1">
-          <label class="muted">Dein Name</label>
-          <input class="input" id="s_by" value="${session()?.username||''}" placeholder="Dein Name">
-        </div>
-        <div style="flex:1">
-          <label class="muted">Spieler ID (Discord)</label>
-          <input class="input" id="s_who" placeholder="Discord ID + Grund eingeben">
-        </div>
-      </div>
-      <div class="support-type" style="margin:12px 0">
-        <button class="btn good"   onclick="markStatus('gelöst')">✔ Gelöst</button>
-        <button class="btn bad"    onclick="markStatus('nicht_gelöst')">✖ Nicht Gelöst</button>
-        <button class="btn"        onclick="markStatus('klärung')">❓ Weitere Klärung</button>
-        <button class="btn warn"   onclick="markStatus('weitergeleitet')">➡ Weitergeleitet</button>
-      </div>
-      <textarea class="input" id="s_desc" placeholder="Kurzbeschreibung"></textarea>
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="s_save">📝 Support eintragen</button>
-      </div>`;
-    let currentStatus = "klärung";
-    window.markStatus = s => { currentStatus = s; toast("Status: "+s); };
-    form.querySelector("#s_save").onclick = ()=>{
-      const by=form.querySelector("#s_by").value.trim();
-      const who=form.querySelector("#s_who").value.trim();
-      const d=form.querySelector("#s_desc").value.trim();
-      if(!by || !who) return toast("Dein Name und Spielername erforderlich", true);
-      const arr=getSupports(); arr.push({id:crypto.randomUUID(),by,who,desc:d,status:currentStatus,at:Date.now()});
-      setSupports(arr); toast("Support gespeichert"); routeTo("support");
-    };
-    wrap.appendChild(form);
+  // header cards
+  const head = el("div","grid cols-3");
+  const supports = await getSupports();
+  head.append(kpiBox("Deine Einträge", supports.filter(s=>s.by===session()?.username).length));
+  head.append(kpiBox("Gesamt Supports", supports.length));
+  head.append(kpiBox("Teamranking (Top)", topRanking()));
+  wrap.appendChild(head);
 
-    // list
-    const list = el("div","card");
-    list.innerHTML = `<h3>Support-Einträge</h3>`;
-    const tbl = table(["Zeit","Von","Spieler","Status","Beschreibung","Aktion"],
-      getSupports().slice().reverse().map((s,i)=>[
-        new Date(s.at).toLocaleString(),
-        s.by,
-        s.who,
-        `<span class="tag">${s.status}</span>`,
-        s.desc||"",
-        can("admin")?`<button class="btn small bad" onclick="delSupport('${s.id}')">Löschen</button>`:""
-      ]));
-    list.appendChild(tbl);
-    wrap.appendChild(list);
-    return wrap;
-  },
+  // form
+  const form = el("div","card");
+  form.innerHTML = `
+    <h3>🎧 Neuen Support eintragen</h3>
+    <div class="row">
+      <div style="flex:1">
+        <label class="muted">Dein Name</label>
+        <input class="input" id="s_by" value="${session()?.username||''}" placeholder="Dein Name">
+      </div>
+      <div style="flex:1">
+        <label class="muted">Spieler ID (Discord)</label>
+        <input class="input" id="s_who" placeholder="Discord ID + Grund eingeben">
+      </div>
+    </div>
+    <div class="support-type" style="margin:12px 0">
+      <button class="btn good"   onclick="markStatus('gelöst')">✔ Gelöst</button>
+      <button class="btn bad"    onclick="markStatus('nicht_gelöst')">✖ Nicht Gelöst</button>
+      <button class="btn"        onclick="markStatus('klärung')">❓ Weitere Klärung</button>
+      <button class="btn warn"   onclick="markStatus('weitergeleitet')">➡ Weitergeleitet</button>
+    </div>
+    <textarea class="input" id="s_desc" placeholder="Kurzbeschreibung"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="s_save">📝 Support eintragen</button>
+    </div>`;
+
+  let currentStatus = "klärung";
+  window.markStatus = s => { currentStatus = s; toast("Status: "+s); };
+
+  form.querySelector("#s_save").onclick = async () => {
+    const by = form.querySelector("#s_by").value.trim();
+    const who = form.querySelector("#s_who").value.trim();
+    const d = form.querySelector("#s_desc").value.trim();
+    if(!by || !who) return toast("Dein Name und Spielername erforderlich", true);
+
+    const arr = await getSupports();
+    arr.push({id: crypto.randomUUID(), by, who, desc: d, status: currentStatus, at: Date.now()});
+    await setSupports(arr);
+    toast("Support gespeichert");
+    routeTo("support");
+  };
+
+  wrap.appendChild(form);
+
+  // list
+  const list = el("div","card");
+  list.innerHTML = `<h3>Support-Einträge</h3>`;
+
+  const tbl = table(
+    ["Zeit","Von","Spieler","Status","Beschreibung","Aktion"],
+    (await getSupports()).slice().reverse().map(s => [
+      new Date(s.at).toLocaleString(),
+      s.by,
+      s.who,
+      `<span class="tag">${s.status}</span>`,
+      s.desc || "",
+      can("admin") ? `<button class="btn small bad" onclick="delSupport('${s.id}')">Löschen</button>` : ""
+    ])
+  );
+
+  list.appendChild(tbl);
+  wrap.appendChild(list);
+
+  return wrap;
+},
 
   accounts(){
     if(!can("admin")) return denyCard();
