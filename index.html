@@ -288,21 +288,20 @@ const routes = {
     return wrap;
   },
 
-team(){
-//Team = High Team
-  const staff = getUsers().filter(u=>u.role!=="member");
-  const card = el("div,"card");
-  card.innerHTML = <h3>Adminmitglieder</h3>;
-  const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
-    <img class="avatar" src="${u.avatar||'pepecraft.png'}"
-alt="">
-   u.username,
-   <span class="tag">${u.role}</span>
-  new Date(u.created).toLocaleDateString()
-]))
-card.appendChild(tbl);
-return card;
-},  
+  team(){
+    // Team = alle Nutzer mit Rolle admin/owner
+    const staff = getUsers().filter(u=>u.role!=="member");
+    const card = el("div","card");
+    card.innerHTML = `<h3>Adminuser</h3>`;
+    const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
+      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" alt="">`,
+      u.username,
+      `<span class="tag">${u.role}</span>`,
+      new Date(u.created).toLocaleDateString()
+    ]));
+    card.appendChild(tbl);
+    return card;
+  },
     
 
   links(){
