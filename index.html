@@ -285,28 +285,21 @@ const routes = {
   },
 
 team(){
-  const staff = getUsers();
-  const card = el("div","card");
-  card.innerHTML = `<h3>Team & Mitglieder</h3>`;
-
-  const tbl = table(
-    ["Avatar","Username","Rolle","Seit"],
-    staff.map(u=>[
-      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" 
-         alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`,
-      `<strong>${u.username}</strong>`,
-      (() => {
-        if(u.role === "owner") return `<span class="tag" style="background:#FFD700;color:#000;">Owner</span>`;
-        if(u.role === "admin") return `<span class="tag" style="background:#007BFF;">Admin</span>`;
-        return `<span class="tag" style="background:#28A745;">Member</span>`;
-      })(),
-      new Date(u.created).toLocaleDateString()
-    ])
-  );
-
-  card.appendChild(tbl);
-  return card;
-},
+//Team = High Team
+  const staff = getUsers().filter(u=>u.role!=="member");
+  const card = el("div,"card");
+  card.innerHTML = <h3>Adminmitglieder</h3>;
+  const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
+    <img class="avatar" src="${u.avatar||'pepecraft.png'}"
+alt="">
+   u.username,
+   <span class="tag">${u.role}</span>
+  new Date(u.created).toLocaleDateString()
+]))
+card.appendChild(tbl);
+return card;
+},  
+    
 
   links(){
     const wrap = el("div","grid cols-2");
