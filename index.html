@@ -150,19 +150,72 @@ const DB = {
 })();
 
 
-function getUsers(){ return JSON.parse(localStorage.getItem(DB.users)||"[]"); }
-function setUsers(arr){ localStorage.setItem(DB.users, JSON.stringify(arr)); }
+async function getUsers() {
+  const res = await fetch("https://datenbank-z6bb.onrender.com/api/users");
+  return await res.json();
+}
+async function setUsers(arr) {
+  await fetch("https://datenbank-z6bb.onrender.com/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(arr)
+  });
+}
 function session(){ return JSON.parse(localStorage.getItem(DB.session)||"null"); }
 function loginAs(u){ localStorage.setItem(DB.session, JSON.stringify(u)); renderTop(); routeTo("home"); toast("Angemeldet als "+u.username); }
 function logout(){ localStorage.removeItem(DB.session); renderTop(); routeTo("login"); }
-function saveHome(v){ localStorage.setItem(DB.home, JSON.stringify(v)); }
-function getHome(){ return JSON.parse(localStorage.getItem(DB.home)||"{}"); }
-function getLinks(){ return JSON.parse(localStorage.getItem(DB.links)||"[]"); }
-function setLinks(x){ localStorage.setItem(DB.links, JSON.stringify(x)); }
-function getMembers(){ return JSON.parse(localStorage.getItem(DB.members)||"[]"); }
-function setMembers(x){ localStorage.setItem(DB.members, JSON.stringify(x)); }
-function getSupports(){ return JSON.parse(localStorage.getItem(DB.supports)||"[]"); }
-function setSupports(x){ localStorage.setItem(DB.supports, JSON.stringify(x)); }
+async function getHome() {
+  const res = await fetch("https://datenbank-z6bb.onrender.com/api/home");
+  return await res.json();
+}
+async function saveHome(v) {
+  await fetch("https://datenbank-z6bb.onrender.com/api/home", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(v)
+  });
+}
+// Links laden
+async function getLinks() {
+  const res = await fetch("https://datenbank-z6bb.onrender.com/api/links");
+  return await res.json();
+}
+
+// Links speichern
+async function setLinks(x) {
+  await fetch("https://datenbank-z6bb.onrender.com/api/links", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(x)
+  });
+}
+
+// Mitglieder laden
+async function getMembers() {
+  const res = await fetch("https://datenbank-z6bb.onrender.com/api/members");
+  return await res.json();
+}
+
+// Mitglieder speichern
+async function setMembers(x) {
+  await fetch("https://datenbank-z6bb.onrender.com/api/members", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(x)
+  });
+}
+async function getSupports() {
+  const res = await fetch("https://datenbank-z6bb.onrender.com/api/supports");
+  return await res.json();
+}
+async function setSupports(x) {
+  await fetch("https://datenbank-z6bb.onrender.com/api/supports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(x)
+  });
+}
+
 
 function can(view){
   const me = session();
