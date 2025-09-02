@@ -418,7 +418,7 @@ const routes = {
     const me=session(); if(!me) return denyCard("Bitte zuerst einloggen.");
     const card = el("div","card");
     card.innerHTML = `
-      <h3>Profil</h3>
+      <h3>Profilbild ändern</h3>
       <div class="flex">
         <img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}" alt="">
         <div class="row">
@@ -438,7 +438,7 @@ const routes = {
       }
       setUsers(users);
       loginAs(users[idx]); // refresh session
-      toast("Profil aktualisiert");
+      toast("Profilbild aktualisiert");
     };
     return card;
   }
