@@ -12,20 +12,19 @@ a{color:var(--accent);text-decoration:none}img{max-width:100%}.wrap{max-width:11
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://nejriqvvzdffkmycrair.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E";
+const SUPABASE_URL = "https://nejriqvvzdffkmycrair.supabase.co"; // richtig setzen
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E"; // richtig setzen
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const qs = s => document.querySelector(s);
 const el = (t,cls) => Object.assign(document.createElement(t),{className:cls||""});
-
 function toast(msg,err){const t=qs("#toast");t.textContent=msg;t.style.borderColor=err?"#ff6b81":"#0006";t.classList.remove("hidden");setTimeout(()=>t.classList.add("hidden"),2000);}
 async function fileToDataUrl(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});}
 
 // --- SESSION & AUTH ---
 function session(){return JSON.parse(localStorage.getItem("pc_session")||"null");}
 async function login(username,password){
-    const {data,error} = await supabase.from('users').select('*').eq('username',username).single();
+    const { data, error } = await supabase.from('users').select('*').eq('username',username).single();
     if(error || !data || data.pass!==password){toast("Falsche Zugangsdaten",true); return null;}
     localStorage.setItem("pc_session",JSON.stringify(data));
     renderTop(); routeTo("home"); toast("Angemeldet als "+data.username); return data;
@@ -33,34 +32,16 @@ async function login(username,password){
 function logout(){localStorage.removeItem("pc_session"); renderTop(); routeTo("login");}
 
 // --- PERMISSIONS ---
-function can(view){
-    const me=session(); if(!me) return false;
-    if(me.role==="owner") return true;
-    const map={admin:["admin","owner"],member:["member","admin","owner"]};
-    if(view==="owner") return me.role==="owner";
-    if(view==="admin") return map.admin.includes(me.role);
-    return map.member.includes(me.role);
-}
+function can(view){const me=session(); if(!me) return false; if(me.role==="owner") return true; const map={admin:["admin","owner"],member:["member","admin","owner"]}; if(view==="owner") return me.role==="owner"; if(view==="admin") return map.admin.includes(me.role); return map.member.includes(me.role);}
 
 // --- UI TOP ---
 function renderTop(){
-    const me=session();
-    qs("#who")?.remove();
-    const nav=qs("#topNav"); nav.innerHTML="";
+    const me=session(); const nav=qs("#topNav"); nav.innerHTML="";
     const add=(label,view,guard)=>{if(guard===false)return;const b=el("button","btn small");b.textContent=label;b.onclick=()=>routeTo(view);nav.appendChild(b);};
-    add("Start","home",true);
-    add("Mitglieder","members",true);
-    add("Team","team",true);
-    add("Links","links",true);
-    add("Support","support",true);
-    add("Konten","accounts",can("admin"));
-    add("Adminpanel","admin",can("admin"));
-    if(me){
-        const prof=el("button","btn small"); prof.textContent="Profil"; prof.onclick=()=>routeTo("profile"); nav.appendChild(prof);
+    add("Start","home",true); add("Mitglieder","members",true); add("Team","team",true); add("Links","links",true); add("Support","support",true); add("Konten","accounts",can("admin")); add("Adminpanel","admin",can("admin"));
+    if(me){const prof=el("button","btn small"); prof.textContent="Profil"; prof.onclick=()=>routeTo("profile"); nav.appendChild(prof);
         const out=el("button","btn small bad"); out.textContent="Logout"; out.onclick=logout; nav.appendChild(out);
-    } else {
-        const inn=el("button","btn small primary"); inn.textContent="Login"; inn.onclick=()=>routeTo("login"); nav.appendChild(inn);
-    }
+    } else {const inn=el("button","btn small primary"); inn.textContent="Login"; inn.onclick=()=>routeTo("login"); nav.appendChild(inn);}
 }
 
 // --- TABLE & KPI ---
@@ -70,116 +51,169 @@ function denyCard(txt){const c=el("div","card");c.innerHTML=`<div class="status"
 
 // --- ROUTES ---
 const routes = {
-login(){
-    const c=el("div","grid cols-2");
-    const left=el("div","card");
-    left.innerHTML=`<h3>Login</h3><div class="muted">Der Seiteninhaber legt Accounts an.</div><div class="row" style="margin-top:10px"><input class="input" id="u" placeholder="Username"><input class="input" id="p" placeholder="Passwort" type="password"><button class="btn primary" id="go">Einloggen</button></div>`;
-    left.querySelector("#go").onclick=()=>login(left.querySelector("#u").value.trim(), left.querySelector("#p").value);
-    const right=el("div","card center"); right.innerHTML=`<img src="pepecraft.png" style="max-height:220px;border-radius:16px;border:1px solid #0006">`;
-    c.append(left,right); return c;
+login(){ const c=el("div","grid cols-2"); const left=el("div","card");
+left.innerHTML=`<h3>Login</h3><div class="muted">Der Seiteninhaber legt Accounts an.</div><div class="row" style="margin-top:10px"><input class="input" id="u" placeholder="Username"><input class="input" id="p" placeholder="Passwort" type="password"><button class="btn primary" id="go">Einloggen</button></div>`;
+left.querySelector("#go").onclick=()=>login(left.querySelector("#u").value.trim(), left.querySelector("#p").value);
+const right=el("div","card center"); right.innerHTML=`<img src="pepecraft.png" style="max-height:220px;border-radius:16px;border:1px solid #0006">`; c.append(left,right); return c;
 },
 
 home: async function(){
-    let { data: home, error } = await supabase.from('home').select('*').limit(1).single();
-    if(error || !home) home = {title:"Willkommen", content:"Bearbeite das Adminpanel", hero:"pepecraft.png"};
-
+    let { data: home } = await supabase.from('home').select('*').limit(1).single();
+    if(!home) home = {title:"Willkommen", content:"Bearbeite das Adminpanel", hero:"pepecraft.png"};
     const wrap = el("div","grid cols-2");
     const heroCard = el("div","card");
-    heroCard.innerHTML = `
-        <img src="${home.hero}" style="width:100%;border-radius:14px;border:1px solid #0006">
-        <h2 style="margin:12px 0 6px 0">${home.title}</h2>
-        <p class="muted">${home.content}</p>
-        <div class="row">
-            <span class="badge">Clan Portal</span>
-            <span class="badge">Minecraft</span>
-            <span class="badge">Support</span>
-        </div>`;
+    heroCard.innerHTML = `<img src="${home.hero}" style="width:100%;border-radius:14px;border:1px solid #0006"><h2 style="margin:12px 0 6px 0">${home.title}</h2><p class="muted">${home.content}</p><div class="row"><span class="badge">Clan Portal</span><span class="badge">Minecraft</span><span class="badge">Support</span></div>`;
     wrap.appendChild(heroCard);
-
     const { data: members } = await supabase.from('members').select('*');
     const { data: users } = await supabase.from('users').select('*');
     const { data: supports } = await supabase.from('supports').select('*');
-
     const stats = el("div","grid");
     stats.appendChild(cardKPI("Mitglieder", members ? members.length : 0));
     stats.appendChild(cardKPI("Accounts", users ? users.length : 0));
     stats.appendChild(cardKPI("Support-Tickets", supports ? supports.length : 0));
     wrap.appendChild(stats);
-
     return wrap;
 },
 
-members: async function(){
-    const {data:members} = await supabase.from('members').select('*');
+// --- TEAM ---
+team: async function(){
     const wrap=el("div","grid");
-    const rows=members.map((m,i)=>[m.ign,m.discord,(m.ranks||[]).join(","),can("admin")?`<button class="btn small bad" onclick="delMember(${i})">Löschen</button>`:""]);
-    const c=el("div","card"); c.innerHTML="<h3>Mitglieder</h3>"; c.appendChild(table(["IGN","Discord","Ränge","Aktion"],rows));
-    if(can("admin")) c.appendChild(cardMemberForm());
-    wrap.appendChild(c); return wrap;
+    const { data: staff } = await supabase.from('users').select('*').neq('role','member');
+    const rows = staff.map(u=>[`<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,`<span class="tag">${u.role}</span>`,new Date(u.created).toLocaleDateString(),""]);
+    const card=el("div","card"); card.innerHTML="<h3>Teammitglieder</h3>"; card.appendChild(table(["Avatar","Username","Rolle","Seit"],rows));
+    wrap.appendChild(card); return wrap;
 },
 
+// --- LINKS ---
+links: async function(){
+    const wrap=el("div","grid");
+    const { data: links } = await supabase.from('links').select('*');
+    const rows = links.map((l,i)=>[`<span class="tag">${l.name}</span>`,`<a href="${l.url}" target="_blank">${l.url}</a>`,`<button class="btn small bad" onclick="deleteLink(${i})">Löschen</button>`]);
+    const card=el("div","card"); card.innerHTML="<h3>Links</h3>"; card.appendChild(table(["Name","URL","Aktion"],rows));
+    wrap.appendChild(card);
+    return wrap;
+},
+deleteLink = async(i)=>{
+    const { data: links } = await supabase.from('links').select('*');
+    if(!links[i]) return;
+    await supabase.from('links').delete().eq('name',links[i].name);
+    toast("Link gelöscht"); routeTo("links");
+},
+
+// --- SUPPORT ---
+support: async function(){
+    const wrap=el("div","grid");
+    const { data: supports } = await supabase.from('supports').select('*');
+    const userSupports = supports.filter(s=>s.by===session()?.username).length;
+    const card=el("div","grid cols-2");
+    card.appendChild(cardKPI("Deine Einträge",userSupports));
+    card.appendChild(cardKPI("Gesamt Supports",supports.length));
+    wrap.appendChild(card);
+    return wrap;
+},
+
+home: async function(){
+    let { data: home } = await supabase.from('home').select('*').limit(1).single();
+    if(!home) home = {title:"Willkommen", content:"Bearbeite das Adminpanel", hero:"pepecraft.png"};
+    const wrap = el("div","grid cols-2");
+    const heroCard = el("div","card");
+    heroCard.innerHTML = `<img src="${home.hero}" style="width:100%;border-radius:14px;border:1px solid #0006"><h2 style="margin:12px 0 6px 0">${home.title}</h2><p class="muted">${home.content}</p><div class="row"><span class="badge">Clan Portal</span><span class="badge">Minecraft</span><span class="badge">Support</span></div>`;
+    wrap.appendChild(heroCard);
+    const { data: members } = await supabase.from('members').select('*');
+    const { data: users } = await supabase.from('users').select('*');
+    const { data: supports } = await supabase.from('supports').select('*');
+    const stats = el("div","grid");
+    stats.appendChild(cardKPI("Mitglieder", members ? members.length : 0));
+    stats.appendChild(cardKPI("Accounts", users ? users.length : 0));
+    stats.appendChild(cardKPI("Support-Tickets", supports ? supports.length : 0));
+    wrap.appendChild(stats);
+    return wrap;
+},
+
+// --- MEMBERS ---
+members: async function(){
+    const wrap = el("div","grid");
+    const { data: members } = await supabase.from('members').select('*');
+    const me = session();
+    const rows = members.map((m,i)=>[m.ign, m.discord, (m.ranks||[]).join(","), can("admin") ? `<button class="btn small bad" onclick="deleteMember(${i})">Löschen</button>`:""]);
+    const card = el("div","card"); card.innerHTML="<h3>Mitglieder</h3>"; card.appendChild(table(["IGN","Discord","Ränge","Aktion"],rows)); wrap.appendChild(card);
+    if(can("admin")){
+        const addCard = el("div","card"); addCard.innerHTML=`<h3>Mitglied hinzufügen</h3><div class="row"><input class="input" id="m_ign" placeholder="IGN"><input class="input" id="m_dis" placeholder="Discord"><input class="input" id="m_rnk" placeholder="Ränge, Komma getrennt"><button class="btn primary" id="m_s">Hinzufügen</button></div>`;
+        addCard.querySelector("#m_s").onclick=async()=>{
+            const ign = addCard.querySelector("#m_ign").value.trim(); const dis = addCard.querySelector("#m_dis").value.trim(); const rnk = addCard.querySelector("#m_rnk").value.split(",").map(x=>x.trim());
+            if(!ign){toast("IGN fehlt",true);return;}
+            await supabase.from('members').insert([{ign,discord:dis,ranks:rnk}]); toast("Mitglied hinzugefügt"); routeTo("members");
+        };
+        wrap.appendChild(addCard);
+    }
+    return wrap;
+},
+
+// --- MEMBER DELETE HELPER ---
+deleteMember = async(i)=>{
+    const { data: members } = await supabase.from('members').select('*');
+    if(!members[i]) return;
+    await supabase.from('members').delete().eq('ign',members[i].ign);
+    toast("Mitglied entfernt"); routeTo("members");
+},
+
+// --- ACCOUNTS ---
 accounts: async function(){
     if(!can("admin")) return denyCard();
-    const {data:users}=await supabase.from('users').select('*');
-    const wrap=el("div","grid");
-    const rows=users.map(u=>[`<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,`<span class="tag">${u.role}</span>`,new Date(u.created).toLocaleDateString(),`<button class="btn small bad" onclick="delUser(${u.id})">Löschen</button>`]);
-    const c=el("div","card"); c.innerHTML="<h3>Alle Konten</h3>"; c.appendChild(table(["Avatar/Name","Rolle","Seit","Aktion"],rows)); wrap.appendChild(c); return wrap;
+    const wrap = el("div","grid"); 
+    const { data: users } = await supabase.from('users').select('*');
+    const rows = users.map(u=>[`<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,`<span class="tag">${u.role}</span>`,new Date(u.created).toLocaleDateString(), session()?.role==="owner"?`<button class="btn small bad" onclick="deleteUser(${u.id})">Löschen</button>`:""]);
+    const card = el("div","card"); card.innerHTML="<h3>Alle Konten</h3>"; card.appendChild(table(["Avatar/Name","Rolle","Seit","Aktion"],rows)); wrap.appendChild(card); return wrap;
 },
 
-profile: async function(){
-    const me=session(); if(!me) return denyCard("Bitte zuerst einloggen.");
-    const card=el("div","card"); card.innerHTML=`<h3>Profil</h3><div class="flex"><img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}"><div class="row"><input class="input" id="np" type="password" placeholder="Neues Passwort"><input class="input" id="av" type="file" accept="image/*"></div><button class="btn primary right" id="savep">Speichern</button></div>`;
-    card.querySelector("#savep").onclick=async()=>{
-        const np=card.querySelector("#np").value; const file=card.querySelector("#av").files[0];
-        if(np) await supabase.from('users').update({pass:np}).eq('id',me.id);
-        if(file){ const b64=await fileToDataUrl(file); await supabase.from('users').update({avatar:b64}).eq('id',me.id); }
-        const {data}=await supabase.from('users').select('*').eq('id',me.id).single();
-        localStorage.setItem("pc_session",JSON.stringify(data)); renderTop(); toast("Profil aktualisiert");
-    }; return card;
-},
+deleteUser = async(id)=>{await supabase.from('users').delete().eq('id',id); toast("Account gelöscht"); routeTo("accounts"); },
 
-admin: async function(){
-    if(!can("admin")) return denyCard();
-    const wrap=el("div","grid cols-2");
-    wrap.appendChild(cardCreateUser());
+// --- ADMIN PANEL ---
+admin: async function(){ if(!can("admin")) return denyCard();
+    const wrap = el("div","grid cols-2");
+    const createCard = el("div","card");
+    createCard.innerHTML=`<h3>Account erstellen</h3><div class="row"><input class="input" id="cu_u" placeholder="Username"><input class="input" id="cu_p" placeholder="Passwort"><select class="input" id="cu_r"><option value="member">member</option><option value="admin">admin</option><option value="owner">owner</option></select><button class="btn primary" id="cu_s">Anlegen</button></div>`;
+    createCard.querySelector("#cu_s").onclick=async()=>{
+        const u=createCard.querySelector("#cu_u").value.trim(); const p=createCard.querySelector("#cu_p").value.trim(); const r=createCard.querySelector("#cu_r").value;
+        if(!u||!p){toast("Username & Passwort angeben",true);return;}
+        const { data:existing } = await supabase.from('users').select('*').eq('username',u).single();
+        if(existing){toast("Username existiert bereits",true);return;}
+        await supabase.from('users').insert([{username:u,pass:p,role:r,avatar:"",created:Date.now()}]); toast("Account erstellt"); routeTo("admin");
+    };
+    wrap.appendChild(createCard); 
     wrap.appendChild(await routes.accounts());
     wrap.appendChild(await routes.members());
     return wrap;
+},
+
+// --- PROFILE ---
+profile: async function(){
+    const me = session(); if(!me) return denyCard("Bitte zuerst einloggen.");
+    const card = el("div","card");
+    card.innerHTML=`<h3>Profil</h3><div class="flex"><img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}"><div class="row"><input class="input" id="np" type="password" placeholder="Neues Passwort"><input class="input" id="av" type="file" accept="image/*"></div><button class="btn primary right" id="savep">Speichern</button></div>`;
+    card.querySelector("#savep").onclick=async()=>{
+        const np = card.querySelector("#np").value; const file = card.querySelector("#av").files[0];
+        if(np) await supabase.from('users').update({pass:np}).eq('id',me.id);
+        if(file){const b64=await fileToDataUrl(file); await supabase.from('users').update({avatar:b64}).eq('id',me.id);}
+        toast("Profil aktualisiert"); routeTo("profile");
+    };
+    return card;
 }
+
 };
-
-// --- HELPER CARDS ---
-function cardCreateUser(){
-    const c=el("div","card"); c.innerHTML=`<h3>Account erstellen</h3><div class="row"><input class="input" id="cu_u" placeholder="Username"><input class="input" id="cu_p" placeholder="Passwort"><select class="input" id="cu_r"><option value="member">member</option><option value="admin">admin</option><option value="owner">owner</option></select><button class="btn primary" id="cu_s">Anlegen</button></div>`;
-    c.querySelector("#cu_s").onclick=async()=>{
-        const u=c.querySelector("#cu_u").value.trim(),p=c.querySelector("#cu_p").value.trim(),r=c.querySelector("#cu_r").value;
-        if(!u||!p){toast("Username & Passwort angeben",true); return;}
-        const {data:existing}=await supabase.from('users').select('*').eq('username',u).single();
-        if(existing){toast("Username existiert bereits",true); return;}
-        await supabase.from('users').insert([{username:u,pass:p,role:r,avatar:"",created:Date.now()}]); toast("Account erstellt"); routeTo("admin");
-    }; return c;
-}
-
-function cardMemberForm(){
-    const c=el("div","card"); c.innerHTML=`<h3>Mitglied hinzufügen</h3><div class="row"><input class="input" id="m_ign" placeholder="IGN"><input class="input" id="m_dis" placeholder="Discord"><input class="input" id="m_rnk" placeholder="Ränge, Komma getrennt"><button class="btn primary" id="m_s">Hinzufügen</button></div>`;
-    c.querySelector("#m_s").onclick=async()=>{
-        const ign=c.querySelector("#m_ign").value.trim(); const dis=c.querySelector("#m_dis").value.trim(); const rnk=c.querySelector("#m_rnk").value.split(",").map(x=>x.trim());
-        if(!ign){toast("IGN fehlt",true); return;}
-        const {data:arr} = await supabase.from('members').select('*'); arr.push({ign,discord:dis,ranks:rnk});
-        await supabase.from('members').delete().neq('ign',''); // lösche alle vorherigen
-        await supabase.from('members').insert(arr); toast("Mitglied hinzugefügt"); routeTo("members");
-    }; return c;
-}
-
-// --- DELETE ---
-async function delUser(id){ if(!confirm("Konto wirklich löschen?")) return; await supabase.from('users').delete().eq('id',id); toast("Konto gelöscht"); routeTo("accounts"); }
-async function delMember(i){ const {data:arr}=await supabase.from('members').select('*'); arr.splice(i,1); await supabase.from('members').delete().neq('ign',''); await supabase.from('members').insert(arr); toast("Mitglied entfernt"); routeTo("members"); }
+    
+members: routes.members,
+accounts: routes.accounts,
+admin: routes.admin,
+profile: routes.profile,
 
 // --- ROUTE HANDLER ---
-async function routeTo(name){
+routeTo: async function(name){
     try{ const routeFn = routes[name]; if(!routeFn) throw new Error("Route existiert nicht"); qs("#route").innerHTML="Lade..."; const content = await routeFn(); qs("#route").innerHTML=""; qs("#route").appendChild(content);
     }catch(e){qs("#route").innerHTML=`<div class="card">Fehler: ${e.message}</div>`;}
 }
+
+};
 
 // --- INIT ---
 document.addEventListener("DOMContentLoaded",()=>{renderTop(); routeTo(session()? "home":"login");});
@@ -198,3 +232,4 @@ document.addEventListener("DOMContentLoaded",()=>{renderTop(); routeTo(session()
 <div id="toast" class="toast hidden"></div>
 </body>
 </html>
+
