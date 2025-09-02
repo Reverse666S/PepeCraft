@@ -123,7 +123,7 @@ const DB = {
     users.push({ id: crypto.randomUUID(), username: "mb1095", pass: "markus", role: "admin", avatar: "", created: Date.now() });
     users.push({ id: crypto.randomUUID(), username: "Pegasus84", pass: "verena", role: "admin", avatar: "", created: Date.now() });
     users.push({ id: crypto.randomUUID(), username: "Jannik", pass: "greentea", role: "member", avatar: "", created: Date.now() });
-  }
+  };
   localStorage.setItem(DB.users, JSON.stringify(users));
 })();
     localStorage.setItem(DB.users, JSON.stringify(users));
@@ -132,7 +132,7 @@ const DB = {
       content: "Diese Startseite kannst du im Adminpanel bearbeiten.",
       hero: "pepecraft.png"
     }));
-  }
+  };
   document.getElementById("yr").textContent = new Date().getFullYear();
 })();
 
