@@ -99,39 +99,43 @@ const DB = {
 
 // seed default owner
 (function seed(){
-  // Alte User löschen, damit keine kaputten Daten drin sind
-  localStorage.removeItem(DB.users);
-  localStorage.removeItem(DB.home);
+  const users = JSON.parse(localStorage.getItem(DB.users)||"[]");
 
-  const users = [];
+  // Owner nur einmal anlegen
+  if(!users.find(u=>u.role==="owner")){
+    users.push({
+      id: crypto.randomUUID(),
+      username: "RandomAuto",
+      pass: "RandomAuto",
+      role: "owner",
+      avatar: "",
+      created: Date.now()
+    });
+  }
 
-  // Owner
-  users.push({
-    id: crypto.randomUUID(),
-    username: "RandomAuto",
-    pass: "RandomAuto",
-    role: "owner",
-    avatar: "",
-    created: Date.now()
+  // Feste Accounts unabhängig vom Owner
+  const existingUsernames = users.map(u=>u.username);
+  const newUsers = [
+    {username:"Mausbaery", pass:"mausbaery", role:"admin"},
+    {username:"Dragon", pass:"dragon", role:"admin"},
+    {username:"Tornado", pass:"pikachu", role:"admin"},
+    {username:"Tobi", pass:"huehnertopf", role:"admin"},
+    {username:"Danger222", pass:"danger", role:"admin"},
+    {username:"mb1095", pass:"markus", role:"admin"},
+    {username:"Pegasus84", pass:"verena", role:"admin"},
+    {username:"iti_hd", pass:"terry", role:"member"},
+    {username:"ByRelaxo", pass:"relaxo", role:"member"},
+    {username:"Devil", pass:"devildoom", role:"member"},
+    {username:"CraftExplain", pass:"craft", role:"member"},
+    {username:"SteinPool", pass:"reicherdude", role:"member"},
+    {username:"Jannik", pass:"greentea", role:"member"},
+  ];
+
+  newUsers.forEach(u=>{
+    if(!existingUsernames.includes(u.username)){
+      users.push({...u, id: crypto.randomUUID(), avatar:"", created: Date.now()});
+    }
   });
-
-  // Admins
-  users.push({ id: crypto.randomUUID(), username: "Mausbaery", pass: "mausbaery", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Dragon", pass: "dragon", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Tornado", pass: "pikachu", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Tobi", pass: "huehnertopf", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Danger222", pass: "danger", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "mb1095", pass: "markus", role: "admin", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Pegasus84", pass: "verena", role: "admin", avatar: "", created: Date.now() });
-
-  // Members
-  users.push({ id: crypto.randomUUID(), username: "iti_hd", pass: "terry", role: "member", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "ByRelaxo", pass: "relaxo", role: "member", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Devil", pass: "devildoom", role: "member", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "CraftExplain", pass: "craft", role: "member", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "SteinPool", pass: "reicherdude", role: "member", avatar: "", created: Date.now() });
-  users.push({ id: crypto.randomUUID(), username: "Jannik", pass: "greentea", role: "member", avatar: "", created: Date.now() });
-
   // Home-Seite
   localStorage.setItem(DB.home, JSON.stringify({
     title: "Willkommen bei PepeCraft",
