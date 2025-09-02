@@ -85,8 +85,8 @@
     // =====================
     // Supabase Setup
     // =====================
-    const SUPA_URL = "DEINE_SUPABASE_URL";
-    const SUPA_KEY = "DEIN_SUPABASE_ANON_KEY";
+    const SUPA_URL = "https://nejriqvvzdffkmycrair.supabase.co";
+    const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E";
     const supabase = createClient(SUPA_URL, SUPA_KEY);
 
     let sessionUser = null;
@@ -416,26 +416,53 @@ routes.home = async function() {
 // =========================
 // Login
 // =========================
-routes.login = async function(){
+routes.login = async function() {
+  const wrap = el("div","grid");
   const card = el("div","card");
-  card.innerHTML=`
+  card.innerHTML = `
     <h3>Login</h3>
-    <input class="input" id="li_user" placeholder="Username">
-    <input class="input" id="li_pass" type="password" placeholder="Passwort">
-    <button class="btn primary" id="li_btn">Login</button>
-  `;
-  card.querySelector("#li_btn").onclick=async()=>{
-    const u = card.querySelector("#li_user").value.trim();
-    const p = card.querySelector("#li_pass").value.trim();
-    const users = await getUsers();
-    const found = users.find(x=>x.username===u && x.pass===p);
-    if(!found) return toast("Login fehlgeschlagen", true);
-    sessionUser = found;
+    <div class="row">
+      <input id="e" class="input" type="email" placeholder="Email">
+      <input id="p" class="input" type="password" placeholder="Passwort">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="loginBtn">Login</button>
+      <button class="btn" id="regBtn">Registrieren</button>
+    </div>`;
+  
+  card.querySelector("#loginBtn").onclick = async () => {
+    const email = card.querySelector("#e").value.trim();
+    const pass = card.querySelector("#p").value.trim();
+    if(!email || !pass) return toast("Email und Passwort erforderlich", true);
+
+    // Supabase Login
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if(error) return toast("Login fehlgeschlagen: " + error.message, true);
+
+    // Benutzerinfos aus 'users' Tabelle holen
+    const { data: userData } = await supabase.from('users').select('*').eq('id', data.user.id).single();
+    sessionUser = userData;
     toast("Erfolgreich eingeloggt");
     renderTop();
     routeTo("home");
   };
-  return card;
+
+  card.querySelector("#regBtn").onclick = async () => {
+    const email = card.querySelector("#e").value.trim();
+    const pass = card.querySelector("#p").value.trim();
+    if(!email || !pass) return toast("Email und Passwort erforderlich", true);
+
+    // Supabase Registrierung
+    const { data, error } = await supabase.auth.signUp({ email, password: pass });
+    if(error) return toast("Registrierung fehlgeschlagen: " + error.message, true);
+
+    // Neuen Benutzer in 'users' Tabelle anlegen
+    await supabase.from('users').insert([{ id: data.user.id, username: email.split('@')[0], role: 'member', created: Date.now() }]);
+    toast("Registrierung erfolgreich. Bitte Login.");
+  };
+
+  wrap.appendChild(card);
+  return wrap;
 };      
 
 // =========================
