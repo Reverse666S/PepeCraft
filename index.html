@@ -362,19 +362,16 @@ routes.admin = async function(){ return can("admin") ? await routes.accounts() :
 // =========================
 routes.home = async function() {
   const wrap = el("div","grid cols-2");
-
-  // Daten abrufen
-  const homeDataResp = await supabase.from('home').select('*').limit(1).single();
-  const homeData = homeDataResp.data || { title: 'PepeCraft', hero: 'pepecraft.png', content: '' };
+  const home = await getHome();
   const members = await getMembers();
   const users = await getUsers();
   const supports = await getSupports();
 
   const hero = el("div","card");
   hero.innerHTML = `
-    <img src="${homeData.hero||'pepecraft.png'}" alt="Hero" style="width:100%;border-radius:14px;border:1px solid #0006">
-    <h2 style="margin:12px 0 6px 0">${homeData.title||'PepeCraft'}</h2>
-    <p class="muted">${homeData.content||''}</p>
+    <img src="${home.hero||'pepecraft.png'}" alt="Hero" style="width:100%;border-radius:14px;border:1px solid #0006">
+    <h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft'}</h2>
+    <p class="muted">${home.content||''}</p>
     <div class="row">
       <span class="badge">Clan Portal</span>
       <span class="badge">Minecraft</span>
@@ -392,18 +389,16 @@ routes.home = async function() {
     const edit = el("div","card");
     edit.innerHTML = `
       <h3>Startseite bearbeiten</h3>
-      <div class="row"><input id="t" class="input" value="${homeData.title||''}" placeholder="Titel"></div>
-      <div class="row"><input id="h" class="input" value="${homeData.hero||'pepecraft.png'}" placeholder="Hero-Bildpfad (z.B. pepecraft.png)"></div>
-      <div class="row"><textarea id="c" class="input" placeholder="Inhalt">${homeData.content||''}</textarea></div>
+      <div class="row"><input id="t" class="input" value="${home.title||''}" placeholder="Titel"></div>
+      <div class="row"><input id="h" class="input" value="${home.hero||'pepecraft.png'}" placeholder="Hero-Bildpfad"></div>
+      <div class="row"><textarea id="c" class="input" placeholder="Inhalt">${home.content||''}</textarea></div>
       <button class="btn primary" id="save">Speichern</button>`;
-    
-    edit.querySelector("#save").onclick = async () => {
-      const updates = {
+    edit.querySelector("#save").onclick = async ()=>{
+      await saveHome({
         title: edit.querySelector("#t").value,
         hero: edit.querySelector("#h").value,
         content: edit.querySelector("#c").value
-      };
-      await supabase.from('home').upsert([updates]); // Upsert speichert oder aktualisiert
+      });
       toast("Startseite aktualisiert");
       routeTo("home");
     };
