@@ -139,7 +139,7 @@ const DB = {
     localStorage.setItem(DB.users, JSON.stringify(users));
     localStorage.setItem(DB.home, JSON.stringify({
       title: "Willkommen bei PepeCraft",
-      content: "Diese Startseite kannst du im Adminpanel bearbeiten.",
+      content: "Dies ist die PepeCraft Teamseite. Die Seite ist noch in der Beta, weswegen Dinge wie Links und Mitglieder local, also pro User, gespeichert werden. Wir arbeiten bereits an Lösungen. Sollte ein Account benötigt werden, wendet euch an RandomAuto",
       hero: "pepecraft.png"
     }));
   }
@@ -217,7 +217,7 @@ const routes = {
     const left = el("div","card");
     left.innerHTML = `
       <h3>Login</h3>
-      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>owner / changeme</code></div>
+      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>RandomAuto</code></div>
       <div class="row" style="margin-top:10px">
         <input class="input" id="u" placeholder="Username" />
         <input class="input" id="p" placeholder="Passwort" type="password" />
@@ -288,7 +288,7 @@ const routes = {
     // Team = alle Nutzer mit Rolle admin/owner
     const staff = getUsers().filter(u=>u.role!=="member");
     const card = el("div","card");
-    card.innerHTML = `<h3>Teammitglieder</h3>`;
+    card.innerHTML = `<h3>Adminuser</h3>`;
     const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
       `<img class="avatar" src="${u.avatar||'pepecraft.png'}" alt="">`,
       u.username,
@@ -302,7 +302,7 @@ const routes = {
   links(){
     const wrap = el("div","grid cols-2");
     const list = el("div","card");
-    list.innerHTML = `<h3>Links</h3>`;
+    list.innerHTML = `<h3>Links(aktuell nur pro Mitglied sichtbar)</h3>`;
     const data = getLinks();
     const tbl = table(["Name","URL","Aktion"], data.map((l,i)=>[
       `<span class="tag">${l.name}</span>`,
@@ -418,7 +418,6 @@ const routes = {
       <div class="flex">
         <img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}" alt="">
         <div class="row">
-          <input class="input" id="np" type="password" placeholder="Neues Passwort (leer = unverändert)">
           <input class="input" id="av" type="file" accept="image/*">
         </div>
         <button class="btn primary right" id="savep">Speichern</button>
@@ -521,7 +520,7 @@ function cardUsersTable(){
 
 function cardMembersTable(editable){
   const c = el("div","card");
-  c.innerHTML = `<h3>Clanmitglieder</h3>`;
+  c.innerHTML = `<h3>Clanmitglieder(bisher nur pro Mitglied sichtbar)</h3>`;
   const rows = getMembers().map((m,i)=>[
     `<b>${m.ign}</b>`,
     m.discord,
