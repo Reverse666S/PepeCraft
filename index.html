@@ -682,26 +682,12 @@ function delSupport(id){
   routeTo("supports");
 }
 
-async function routeTo(view){
-  window.location.hash = view;
-  const outlet = qs("#outlet");
-  outlet.innerHTML = "";
-
-  let c;
-  switch(view){
-    case "home": c = await viewHome(); break;
-    case "members": c = await viewMembers(); break;
-    case "team": c = await viewTeam(); break;
-    case "links": c = await viewLinks(); break;
-    case "support": c = await viewSupport(); break;
-    case "accounts": c = await viewAccounts(); break;
-    case "admin": c = await viewAdmin(); break;
-    case "profile": c = await viewProfile(); break;
-    case "login": c = await viewLogin(); break;
-    default: c = el("div","card","Seite nicht gefunden");
-  }
-
-  if(c) outlet.appendChild(c);
+async function routeTo(name){
+  window.location.hash = name;
+  const host = qs("#route"); host.innerHTML = "";
+  const view = routes[name] || routes.home;
+  host.appendChild(await view()); // wichtig: await
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
   
@@ -715,10 +701,8 @@ window.delSupport=delSupport;
 /* boot */
 renderTop();
 routeTo((location.hash||"#home").slice(1));
-window.addEventListener("load", async ()=>{
-  renderTop();
-  const initial = window.location.hash.slice(1) || "home";
-  await routeTo(initial);
+window.addEventListener("hashchange", async ()=>await routeTo(window.location.hash.slice(1)));
+await routeTo(window.location.hash.slice(1) || "home");
 });
 </script>
 </body>
