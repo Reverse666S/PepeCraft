@@ -69,451 +69,513 @@
       <nav class="nav" id="topNav"></nav>
     </header>
 
+    <!-- ROUTES -->
     <main id="route"></main>
 
     <footer class="center">
-      <div class="muted">© <span id="yr"></span> PepeCraft · Demo mit Supabase</div>
+      <div class="muted">© <span id="yr"></span> PepeCraft · Teamseite</div>
     </footer>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Supabase + SPA Script -->
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<script>
+/* =========================
+   Tiny SPA with localStorage
+   Roles: owner, admin, member
+   ========================= */
+const qs = s => document.querySelector(s);
+const el = (t,cls) => Object.assign(document.createElement(t), { className: cls||"" });
 
-    // =====================
-    // Supabase Setup
-    // =====================
-    const SUPA_URL = "https://nejriqvvzdffkmycrair.supabase.co";
-    const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lanJpcXZ2emRmZmtteWNyYWlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NjQwOTcsImV4cCI6MjA3MjM0MDA5N30.tNERQEyFU1pwuAJglZzJl6KVOAlLek8eQNI3vY8LT3E";
-    const supabase = createClient(SUPA_URL, SUPA_KEY);
+const DB = {
+  users: "pc_users",
+  session: "pc_session",
+  home: "pc_home",
+  links: "pc_links",
+  members: "pc_members",
+  supports: "pc_supports"
+};
 
-    let sessionUser = null;
+// seed default owner
+(function seed(){
+  const users = JSON.parse(localStorage.getItem(DB.users)||"[]");
+  if(!users.find(u=>u.role==="owner")){
+    users.push({
+      id: crypto.randomUUID(),
+      username: "RandomAuto",
+      pass: "RandomAuto",
+      role: "owner",
+      avatar: "",
+      created: Date.now()
+    });
+    localStorage.setItem(DB.users, JSON.stringify(users));
+    localStorage.setItem(DB.home, JSON.stringify({
+      title: "Willkommen bei PepeCraft",
+      content: "Diese Startseite kannst du im Adminpanel bearbeiten.",
+      hero: "pepecraft.png"
+    }));
+  }
+  document.getElementById("yr").textContent = new Date().getFullYear();
+})();
 
-    async function fetchSession(){ return sessionUser; }
+function getUsers(){ return JSON.parse(localStorage.getItem(DB.users)||"[]"); }
+function setUsers(arr){ localStorage.setItem(DB.users, JSON.stringify(arr)); }
+function session(){ return JSON.parse(localStorage.getItem(DB.session)||"null"); }
+function loginAs(u){ localStorage.setItem(DB.session, JSON.stringify(u)); renderTop(); routeTo("home"); toast("Angemeldet als "+u.username); }
+function logout(){ localStorage.removeItem(DB.session); renderTop(); routeTo("login"); }
+function saveHome(v){ localStorage.setItem(DB.home, JSON.stringify(v)); }
+function getHome(){ return JSON.parse(localStorage.getItem(DB.home)||"{}"); }
+function getLinks(){ return JSON.parse(localStorage.getItem(DB.links)||"[]"); }
+function setLinks(x){ localStorage.setItem(DB.links, JSON.stringify(x)); }
+function getMembers(){ return JSON.parse(localStorage.getItem(DB.members)||"[]"); }
+function setMembers(x){ localStorage.setItem(DB.members, JSON.stringify(x)); }
+function getSupports(){ return JSON.parse(localStorage.getItem(DB.supports)||"[]"); }
+function setSupports(x){ localStorage.setItem(DB.supports, JSON.stringify(x)); }
 
-    async function getUsers(){ const { data } = await supabase.from('users').select('*'); return data||[]; }
-    async function updateUser(id, updates){ await supabase.from('users').update(updates).eq('id', id); }
-    async function deleteUser(id){ await supabase.from('users').delete().eq('id', id); }
-    async function getMembers(){ const { data } = await supabase.from('members').select('*'); return data||[]; }
-    async function addMember(obj){ await supabase.from('members').insert([obj]); }
-    async function deleteMember(id){ await supabase.from('members').delete().eq('id', id); }
-    async function getLinks(){ const { data } = await supabase.from('links').select('*'); return data||[]; }
-    async function addLink(obj){ await supabase.from('links').insert([obj]); }
-    async function deleteLink(id){ await supabase.from('links').delete().eq('id', id); }
-    async function getSupports(){ const { data } = await supabase.from('supports').select('*'); return data||[]; }
-    async function addSupport(obj){ await supabase.from('supports').insert([obj]); }
-    async function deleteSupport(id){ await supabase.from('supports').delete().eq('id', id); }
+function can(view){
+  const me = session();
+  if(!me) return false;
+  if(me.role==="owner") return true;
+  const map = {
+    admin: ["admin","owner"],
+    member: ["member","admin","owner"]
+  };
+  if(view==="owner") return me.role==="owner";
+  if(view==="admin") return map.admin.includes(me.role);
+  return map.member.includes(me.role);
+}
 
-    // =====================
-    // Helpers
-    // =====================
-    const qs = s=>document.querySelector(s);
-    const el = (t,cls)=>Object.assign(document.createElement(t),{className:cls||""});
-    function toast(msg, err){ const t=qs("#toast"); t.textContent=msg; t.style.borderColor=err?"#ff6b81":"#0006"; t.classList.remove("hidden"); setTimeout(()=>t.classList.add("hidden"),2000);}
-    function fileToDataUrl(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(file); }); }
+function renderTop(){
+  const me = session();
+  qs("#who").textContent = me? `Eingeloggt: ${me.username} (${me.role})` : "Nicht eingeloggt";
+  const nav = qs("#topNav");
+  nav.innerHTML = "";
+  const add = (label, view, guard) => {
+    if(guard===false) return;
+    const b = el("button","btn small");
+    b.textContent = label;
+    b.onclick = () => routeTo(view);
+    nav.appendChild(b);
+  };
+  add("Start", "home", true);
+  add("Mitglieder", "members", true);
+  add("Team", "team", true);
+  add("Links", "links", true);
+  add("Support", "support", true);
+  add("Konten", "accounts", can("admin"));
+  add("Adminpanel", "admin", can("admin"));
+  if(me){
+    const prof = el("button","btn small");
+    prof.textContent = "Profil";
+    prof.onclick = ()=>routeTo("profile");
+    nav.appendChild(prof);
 
-    // =====================
-    // Role System
-    // =====================
-    function can(view){
-      const me = sessionUser;
-      if(!me) return false;
-      if(me.role==="owner") return true;
-      const map = { admin:["admin","owner"], member:["member","admin","owner"] };
-      if(view==="owner") return me.role==="owner";
-      if(view==="admin") return map.admin.includes(me.role);
-      return map.member.includes(me.role);
+    const out = el("button","btn small bad");
+    out.textContent = "Logout";
+    out.onclick = logout;
+    nav.appendChild(out);
+  } else {
+    const inn = el("button","btn small primary");
+    inn.textContent = "Login";
+    inn.onclick = ()=>routeTo("login");
+    nav.appendChild(inn);
+  }
+}
+
+/* Routing */
+const routes = {
+  login(){
+    const c = el("div","grid cols-2");
+    const left = el("div","card");
+    left.innerHTML = `
+      <h3>Login</h3>
+      <div class="muted">Der Seiteninhaber legt Accounts an. Standard-Owner: <code>RandomAuto</code></div>
+      <div class="row" style="margin-top:10px">
+        <input class="input" id="u" placeholder="Username" />
+        <input class="input" id="p" placeholder="Passwort" type="password" />
+        <button class="btn primary" id="go">Einloggen</button>
+      </div>`;
+    left.querySelector("#go").onclick = ()=>{
+      const u = left.querySelector("#u").value.trim();
+      const p = left.querySelector("#p").value;
+      const hit = getUsers().find(x=>x.username===u && x.pass===p);
+      if(!hit) return toast("Falsche Zugangsdaten", true);
+      loginAs(hit);
+    };
+    const right = el("div","card center");
+    right.innerHTML = `<img src="pepecraft.png" alt="PepeCraft" style="max-height:220px;border-radius:16px;border:1px solid #0006">`;
+    c.append(left,right);
+    return c;
+  },
+
+  home(){
+    const home = getHome();
+    const me = session();
+    const wrap = el("div","grid cols-2");
+
+    const hero = el("div","card");
+    hero.innerHTML = `
+      <img src="${home.hero||'pepecraft.png'}" alt="Hero" style="width:100%;border-radius:14px;border:1px solid #0006">
+      <h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft'}</h2>
+      <p class="muted">${home.content||''}</p>
+      <div class="row">
+        <span class="badge">Clan Portal</span>
+        <span class="badge">Minecraft</span>
+        <span class="badge">Support</span>
+      </div>`;
+    wrap.appendChild(hero);
+
+    const stats = el("div","grid");
+    stats.appendChild(cardKPI("Mitglieder", getMembers().length));
+    stats.appendChild(cardKPI("Accounts", getUsers().length));
+    stats.appendChild(cardKPI("Support-Tickets", getSupports().length));
+    wrap.appendChild(stats);
+
+    if(can("admin")){
+      const edit = el("div","card");
+      edit.innerHTML = `
+        <h3>Startseite bearbeiten</h3>
+        <div class="row"><input id="t" class="input" value="${home.title||''}" placeholder="Titel"></div>
+        <div class="row"><input id="h" class="input" value="${home.hero||'pepecraft.png'}" placeholder="Hero-Bildpfad (z.B. pepecraft.png)"></div>
+        <div class="row"><textarea id="c" class="input" placeholder="Inhalt">${home.content||''}</textarea></div>
+        <button class="btn primary" id="save">Speichern</button>`;
+      edit.querySelector("#save").onclick = ()=>{
+        saveHome({ title: edit.querySelector("#t").value, hero: edit.querySelector("#h").value, content: edit.querySelector("#c").value });
+        toast("Startseite aktualisiert");
+        routeTo("home");
+      };
+      wrap.appendChild(edit);
     }
+    return wrap;
+  },
 
-    // =====================
-    // Navbar
-    // =====================
-    function renderTop(){
-      const me=sessionUser;
-      qs("#who").textContent = me? `Eingeloggt: ${me.username} (${me.role})`:"Nicht eingeloggt";
-      const nav=qs("#topNav"); nav.innerHTML="";
-      const add=(label,view,guard)=>{ if(guard===false) return; const b=el("button","btn small"); b.textContent=label; b.onclick=()=>routeTo(view); nav.appendChild(b); };
-      add("Start","home",true); add("Mitglieder","members",true); add("Team","team",true);
-      add("Links","links",true); add("Support","support",true);
-      add("Konten","accounts",can("admin")); add("Adminpanel","admin",can("admin"));
-      if(me){
-        const prof=el("button","btn small"); prof.textContent="Profil"; prof.onclick=()=>routeTo("profile"); nav.appendChild(prof);
-        const out=el("button","btn small bad"); out.textContent="Logout"; out.onclick=()=>{sessionUser=null; renderTop(); routeTo("login");}; nav.appendChild(out);
-      } else{
-        const inn=el("button","btn small primary"); inn.textContent="Login"; inn.onclick=()=>routeTo("login"); nav.appendChild(inn);
+  members(){
+    const wrap = el("div","grid");
+    wrap.appendChild(cardMembersTable(can("admin")));
+    if(can("admin")) wrap.appendChild(cardMemberForm());
+    return wrap;
+  },
+
+  team(){
+    // Team = alle Nutzer mit Rolle admin/owner
+    const staff = getUsers().filter(u=>u.role!=="member");
+    const card = el("div","card");
+    card.innerHTML = `<h3>Teammitglieder</h3>`;
+    const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
+      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" alt="">`,
+      u.username,
+      `<span class="tag">${u.role}</span>`,
+      new Date(u.created).toLocaleDateString()
+    ]));
+    card.appendChild(tbl);
+    return card;
+  },
+
+  links(){
+    const wrap = el("div","grid cols-2");
+    const list = el("div","card");
+    list.innerHTML = `<h3>Links</h3>`;
+    const data = getLinks();
+    const tbl = table(["Name","URL","Aktion"], data.map((l,i)=>[
+      `<span class="tag">${l.name}</span>`,
+      `<a href="${l.url}" target="_blank">${l.url}</a>`,
+      can("admin") ? `<button class="btn small bad" onclick="delLink(${i})">Löschen</button>` : ""
+    ]));
+    list.appendChild(tbl);
+    wrap.appendChild(list);
+
+    if(can("admin")){
+      const form = el("div","card");
+      form.innerHTML = `
+        <h3>Link hinzufügen</h3>
+        <div class="row">
+          <input class="input" id="ln" placeholder="Name">
+          <input class="input" id="lu" placeholder="https://...">
+          <button class="btn primary" id="ls">Speichern</button>
+        </div>`;
+      form.querySelector("#ls").onclick = ()=>{
+        const n=form.querySelector("#ln").value.trim(), u=form.querySelector("#lu").value.trim();
+        if(!n||!u) return toast("Name & URL angeben",true);
+        const x = getLinks(); x.push({name:n,url:u}); setLinks(x); toast("Link gespeichert"); routeTo("links");
+      };
+      wrap.appendChild(form);
+    }
+    return wrap;
+  },
+
+  support(){
+    const wrap = el("div","grid");
+    // header cards
+    const head = el("div","grid cols-3");
+    head.append(kpiBox("Deine Einträge diese Woche", getSupports().filter(s=>s.by===session()?.username).length));
+    head.append(kpiBox("Gesamt Supports", getSupports().length));
+    head.append(kpiBox("Teamranking (Top)", topRanking()));
+    wrap.appendChild(head);
+
+    // form like screenshot
+    const form = el("div","card");
+    form.innerHTML = `
+      <h3>🎧 Neuen Support eintragen</h3>
+      <div class="row">
+        <div style="flex:1">
+          <label class="muted">Dein Name</label>
+          <input class="input" id="s_by" value="${session()?.username||''}" placeholder="Dein Name">
+        </div>
+        <div style="flex:1">
+          <label class="muted">User ID eintragen</label>
+          <input class="input" id="s_who" placeholder="Discord ID + Grund eingeben">
+        </div>
+      </div>
+      <div class="support-type" style="margin:12px 0">
+        <button class="btn good"   onclick="markStatus('gelöst')">✔ Gelöst</button>
+        <button class="btn bad"    onclick="markStatus('nicht_gelöst')">✖ Nicht Gelöst</button>
+        <button class="btn"        onclick="markStatus('klärung')">❓ Weitere Klärung</button>
+        <button class="btn warn"   onclick="markStatus('weitergeleitet')">➡ Weitergeleitet</button>
+      </div>
+      <textarea class="input" id="s_desc" placeholder="Kurzbeschreibung"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="s_save">📝 Support eintragen</button>
+      </div>`;
+    let currentStatus = "klärung";
+    window.markStatus = s => { currentStatus = s; toast("Status: "+s); };
+    form.querySelector("#s_save").onclick = ()=>{
+      const by=form.querySelector("#s_by").value.trim();
+      const who=form.querySelector("#s_who").value.trim();
+      const d=form.querySelector("#s_desc").value.trim();
+      if(!by || !who) return toast("Dein Name und Spielername erforderlich", true);
+      const arr=getSupports(); arr.push({id:crypto.randomUUID(),by,who,desc:d,status:currentStatus,at:Date.now()});
+      setSupports(arr); toast("Support gespeichert"); routeTo("support");
+    };
+    wrap.appendChild(form);
+
+    // list
+    const list = el("div","card");
+    list.innerHTML = `<h3>Support-Einträge</h3>`;
+    const tbl = table(["Zeit","Von","Spieler","Status","Beschreibung","Aktion"],
+      getSupports().slice().reverse().map((s,i)=>[
+        new Date(s.at).toLocaleString(),
+        s.by,
+        s.who,
+        `<span class="tag">${s.status}</span>`,
+        s.desc||"",
+        can("admin")?`<button class="btn small bad" onclick="delSupport('${s.id}')">Löschen</button>`:""
+      ]));
+    list.appendChild(tbl);
+    wrap.appendChild(list);
+    return wrap;
+  },
+
+  accounts(){
+    if(!can("admin")) return denyCard();
+    const wrap = el("div","grid");
+    wrap.appendChild(cardUsersTable());
+    return wrap;
+  },
+
+  admin(){
+    if(!can("admin")) return denyCard();
+    const wrap = el("div","grid cols-2");
+    wrap.appendChild(cardCreateUser());
+    wrap.appendChild(cardUsersTable());
+    wrap.appendChild(cardMembersTable(true));
+    wrap.appendChild(cardMemberForm());
+    return wrap;
+  },
+
+  profile(){
+    const me=session(); if(!me) return denyCard("Bitte zuerst einloggen.");
+    const card = el("div","card");
+    card.innerHTML = `
+      <h3>Profil</h3>
+      <div class="flex">
+        <img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}" alt="">
+        <div class="row">
+          <input class="input" id="np" type="password" placeholder="Neues Passwort (leer = unverändert)">
+          <input class="input" id="av" type="file" accept="image/*">
+        </div>
+        <button class="btn primary right" id="savep">Speichern</button>
+      </div>`;
+    card.querySelector("#savep").onclick = async ()=>{
+      const users=getUsers();
+      const idx=users.findIndex(u=>u.id===me.id);
+      const np=card.querySelector("#np").value;
+      const file=card.querySelector("#av").files[0];
+      if(np) users[idx].pass=np;
+      if(file){
+        const b64 = await fileToDataUrl(file);
+        users[idx].avatar=b64;
       }
-    }
+      setUsers(users);
+      loginAs(users[idx]); // refresh session
+      toast("Profil aktualisiert");
+    };
+    return card;
+  }
+};
 
-    // =====================
-    // Routes
-    // =====================
-    const routes = {};
-// =====================
-// Members
-// =====================
-routes.members = async function() {
-  const wrap = el("div","grid");
-  const members = await getMembers();
+/* Components */
+function cardKPI(label,val){
+  const c = el("div","kpi");
+  c.innerHTML = `<div class="muted">${label}</div><div style="font-size:28px;font-weight:800">${val}</div>`;
+  return c;
+}
+function kpiBox(label,val){
+  const c = el("div","card");
+  c.innerHTML = `<div class="muted">${label}</div><div style="font-size:24px;font-weight:800;margin-top:6px">${typeof val==="string"?val:val}</div>`;
+  return c;
+}
+function table(headers, rows){
+  const t = el("table","table");
+  const thead = el("thead"), tr = el("tr");
+  headers.forEach(h=>{ const th=el("th"); th.innerHTML=h; tr.appendChild(th); });
+  thead.appendChild(tr); t.appendChild(thead);
+  const tb = el("tbody");
+  rows.forEach(r=>{
+    const tr = el("tr");
+    r.forEach(c=>{ const td=el("td"); td.innerHTML = c; tr.appendChild(td); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  return t;
+}
+function denyCard(txt){
+  const c = el("div","card");
+  c.innerHTML = `<div class="status">🔒 ${txt||"Keine Berechtigung"}</div>`;
+  return c;
+}
 
-  const tableCard = el("div","card");
-  tableCard.innerHTML = "<h3>Clanmitglieder</h3>";
-  const rows = members.map(m => [
+function cardCreateUser(){
+  const c = el("div","card");
+  c.innerHTML = `
+    <h3>Account erstellen</h3>
+    <div class="row">
+      <input class="input" id="cu_u" placeholder="Username">
+      <input class="input" id="cu_p" placeholder="Passwort">
+      <select class="input" id="cu_r">
+        <option value="member">member</option>
+        <option value="admin">admin</option>
+        <option value="owner">owner</option>
+      </select>
+      <button class="btn primary" id="cu_s">Anlegen</button>
+    </div>`;
+  c.querySelector("#cu_s").onclick = ()=>{
+    const u=c.querySelector("#cu_u").value.trim();
+    const p=c.querySelector("#cu_p").value.trim();
+    const r=c.querySelector("#cu_r").value;
+    if(!u||!p) return toast("Username & Passwort angeben", true);
+    const users=getUsers();
+    if(users.find(x=>x.username===u)) return toast("Username existiert bereits", true);
+    users.push({id:crypto.randomUUID(),username:u,pass:p,role:r,avatar:"",created:Date.now()});
+    setUsers(users); toast("Account erstellt");
+    routeTo("admin");
+  };
+  return c;
+}
+
+function cardUsersTable(){
+  const c = el("div","card");
+  c.innerHTML = `<h3>Alle Konten</h3>`;
+  const rows = getUsers().map(u=>[
+    `<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"><b>${u.username}</b></div>`,
+    `<span class="tag">${u.role}</span>`,
+    new Date(u.created).toLocaleDateString(),
+    session()?.id===u.id? "—" : `
+      <div class="row">
+        <button class="btn small" onclick="setRole('${u.id}','member')">member</button>
+        <button class="btn small" onclick="setRole('${u.id}','admin')">admin</button>
+        ${can('owner')?`<button class="btn small warn" onclick="setRole('${u.id}','owner')">owner</button>`:""}
+        <button class="btn small bad" onclick="delUser('${u.id}')">löschen</button>
+      </div>`
+  ]);
+  c.appendChild(table(["Konto","Rolle","Seit","Aktionen"], rows));
+  return c;
+}
+
+function cardMembersTable(editable){
+  const c = el("div","card");
+  c.innerHTML = `<h3>Clanmitglieder</h3>`;
+  const rows = getMembers().map((m,i)=>[
     `<b>${m.ign}</b>`,
     m.discord,
     m.ranks.join(", "),
-    can("admin") ? `<button class="btn small bad" onclick="delMemberSup('${m.id}')">Entfernen</button>` : ""
+    editable?`<button class="btn small bad" onclick="delMember(${i})">Entfernen</button>`:""
   ]);
-  tableCard.appendChild(table(["Ingame","Discord","Ränge","Aktion"], rows));
-  wrap.appendChild(tableCard);
+  c.appendChild(table(["Ingame","Discord","Ränge","Aktion"], rows));
+  return c;
+}
+function cardMemberForm(){
+  const c = el("div","card");
+  c.innerHTML = `
+    <h3>Mitglied eintragen</h3>
+    <div class="row">
+      <input id="mi" class="input" placeholder="Ingame-Name">
+      <input id="md" class="input" placeholder="Discord-Name">
+      <input id="mr" class="input" placeholder="Wichtigste Ränge (Komma getrennt)">
+      <button class="btn primary" id="ms">Speichern</button>
+    </div>`;
+  c.querySelector("#ms").onclick = ()=>{
+    const ign=c.querySelector("#mi").value.trim();
+    const disc=c.querySelector("#md").value.trim();
+    const ranks=c.querySelector("#mr").value.split(",").map(s=>s.trim()).filter(Boolean);
+    if(!ign) return toast("Ingame-Name erforderlich", true);
+    const arr=getMembers(); arr.push({ign,discord:disc,ranks}); setMembers(arr); toast("Mitglied gespeichert"); routeTo("members");
+  };
+  return c;
+}
 
-  if(can("admin")){
-    const form = el("div","card");
-    form.innerHTML=`
-      <h3>Mitglied eintragen</h3>
-      <div class="row">
-        <input id="mi" class="input" placeholder="Ingame-Name">
-        <input id="md" class="input" placeholder="Discord-Name">
-        <input id="mr" class="input" placeholder="Ränge (Komma getrennt)">
-        <button class="btn primary" id="ms">Speichern</button>
-      </div>`;
-    form.querySelector("#ms").onclick = async () => {
-      const ign = form.querySelector("#mi").value.trim();
-      const disc = form.querySelector("#md").value.trim();
-      const ranks = form.querySelector("#mr").value.split(",").map(s=>s.trim()).filter(Boolean);
-      if(!ign) return toast("Ingame-Name erforderlich", true);
-      await addMember({ign, discord:disc, ranks});
-      toast("Mitglied gespeichert");
-      routeTo("members");
-    };
-    wrap.appendChild(form);
-  }
+/* Helpers & actions */
+function delUser(id){
+  if(!confirm("Konto wirklich löschen?")) return;
+  const users=getUsers().filter(u=>u.id!==id); setUsers(users); toast("Konto gelöscht"); routeTo("accounts");
+}
+function setRole(id,role){
+  const users=getUsers(); const i=users.findIndex(u=>u.id===id);
+  users[i].role=role; setUsers(users); toast("Rolle geändert"); routeTo("accounts");
+}
+function delMember(i){ const x=getMembers(); x.splice(i,1); setMembers(x); toast("Mitglied entfernt"); routeTo("members"); }
+function delLink(i){ const x=getLinks(); x.splice(i,1); setLinks(x); toast("Link gelöscht"); routeTo("links"); }
+function delSupport(id){ const x=getSupports().filter(s=>s.id!==id); setSupports(x); toast("Eintrag gelöscht"); routeTo("support"); }
 
-  return wrap;
-};
-
-async function delMemberSup(id){ if(!confirm("Mitglied löschen?")) return; await deleteMember(id); toast("Mitglied entfernt"); routeTo("members"); }
-
-
-// =====================
-// Accounts
-// =====================
-routes.accounts = async function() {
-  if(!can("admin")) return denyCard();
-  const wrap = el("div","grid");
-  const users = await getUsers();
-  const card = el("div","card");
-  card.innerHTML="<h3>Alle Konten</h3>";
-  const rows = users.map(u=>[
-    `<div class="flex"><img class="avatar" src="${u.avatar||'pepecraft.png'}"> <b>${u.username}</b></div>`,
-    `<span class="tag">${u.role}</span>`,
-    new Date(u.created).toLocaleDateString(),
-    sessionUser?.id===u.id ? "—" : `
-      <div class="row">
-        <button class="btn small" onclick="setRoleSup('${u.id}','member')">member</button>
-        <button class="btn small" onclick="setRoleSup('${u.id}','admin')">admin</button>
-        ${can('owner')? `<button class="btn small warn" onclick="setRoleSup('${u.id}','owner')">owner</button>` : ""}
-        <button class="btn small bad" onclick="delUserSup('${u.id}')">löschen</button>
-      </div>`
-  ]);
-  card.appendChild(table(["Konto","Rolle","Seit","Aktionen"], rows));
-  wrap.appendChild(card);
-  return wrap;
-};
-
-async function delUserSup(id){ if(!confirm("Konto löschen?")) return; await deleteUser(id); toast("Konto gelöscht"); routeTo("accounts"); }
-async function setRoleSup(id, role){ await updateUser(id,{role}); toast("Rolle geändert"); routeTo("accounts"); }    
-
-// =========================
-// Team
-// =========================
-routes.team = async function(){
-  const wrap = el("div","card");
-  wrap.innerHTML="<h3>Teammitglieder</h3>";
-  const users = await getUsers();
-  const staff = users.filter(u=>u.role!=="member");
-  const rows = staff.map(u => [
-    `<img class="avatar" src="${u.avatar||'pepecraft.png'}"> <b>${u.username}</b>`,
-    `<span class="tag">${u.role}</span>`,
-    new Date(u.created).toLocaleDateString()
-  ]);
-  wrap.appendChild(table(["Avatar","Username","Rolle","Seit"], rows));
-  return wrap;
-};
-
-// =====================
-// Links
-// =====================
-routes.links = async function() {
-  const wrap = el("div","grid cols-2");
-  const links = await getLinks();
-
-  const listCard = el("div","card");
-  listCard.innerHTML="<h3>Links</h3>";
-  const rows = links.map(l=>[
-    `<span class="tag">${l.name}</span>`,
-    `<a href="${l.url}" target="_blank">${l.url}</a>`,
-    can("admin")? `<button class="btn small bad" onclick="delLinkSup('${l.id}')">Löschen</button>`:""
-  ]);
-  listCard.appendChild(table(["Name","URL","Aktion"], rows));
-  wrap.appendChild(listCard);
-
-  if(can("admin")){
-    const form = el("div","card");
-    form.innerHTML=`
-      <h3>Link hinzufügen</h3>
-      <div class="row">
-        <input class="input" id="ln" placeholder="Name">
-        <input class="input" id="lu" placeholder="https://...">
-        <button class="btn primary" id="ls">Speichern</button>
-      </div>`;
-    form.querySelector("#ls").onclick = async()=>{
-      const n = form.querySelector("#ln").value.trim();
-      const u = form.querySelector("#lu").value.trim();
-      if(!n||!u) return toast("Name & URL angeben", true);
-      await addLink({name:n, url:u});
-      toast("Link gespeichert");
-      routeTo("links");
-    };
-    wrap.appendChild(form);
-  }
-
-  return wrap;
-};
-
-async function delLinkSup(id){ if(!confirm("Link löschen?")) return; await deleteLink(id); toast("Link gelöscht"); routeTo("links"); }
-
-// =====================
-// Support
-// =====================
-routes.support = async function() {
-  const wrap = el("div","grid");
-  const supports = await getSupports();
-
-  // Header KPIs
-  const head = el("div","grid cols-3");
-  const userSupports = supports.filter(s=>s.by===sessionUser?.username).length;
-  head.appendChild(cardKPI("Deine Einträge diese Woche", userSupports));
-  head.appendChild(cardKPI("Gesamt Supports", supports.length));
-
+function topRanking(){
   const counts = {};
-  supports.forEach(s=>counts[s.by]=(counts[s.by]||0)+1);
-  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3).map((t,i)=>`#${i+1} ${t[0]} – ${t[1]}`).join("<br>") || "—";
-  head.appendChild(cardKPI("Teamranking (Top)", top));
-  wrap.appendChild(head);
+  getSupports().forEach(s=>{ counts[s.by]=(counts[s.by]||0)+1; });
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  return top.length? top.map((t,i)=>`#${i+1} ${t[0]} – ${t[1]}`).join("<br>") : "—";
+}
 
-  // Form
-  const form = el("div","card");
-  form.innerHTML=`
-    <h3>🎧 Neuen Support eintragen</h3>
-    <div class="row">
-      <div style="flex:1"><label class="muted">Dein Name</label><input class="input" id="s_by" value="${sessionUser?.username||''}"></div>
-      <div style="flex:1"><label class="muted">Spieler Name</label><input class="input" id="s_who"></div>
-    </div>
-    <div class="support-type" style="margin:12px 0">
-      <button class="btn good" onclick="markStatusSup('gelöst')">✔ Gelöst</button>
-      <button class="btn bad" onclick="markStatusSup('nicht_gelöst')">✖ Nicht Gelöst</button>
-      <button class="btn" onclick="markStatusSup('klärung')">❓ Weitere Klärung</button>
-      <button class="btn warn" onclick="markStatusSup('weitergeleitet')">➡ Weitergeleitet</button>
-    </div>
-    <textarea class="input" id="s_desc" placeholder="Kurzbeschreibung"></textarea>
-    <div class="row" style="margin-top:10px">
-      <button class="btn primary" id="s_save">📝 Support eintragen</button>
-    </div>`;
-  let currentStatus = "klärung";
-  window.markStatusSup = s => { currentStatus=s; toast("Status: "+s); };
-  form.querySelector("#s_save").onclick = async () => {
-    const by = form.querySelector("#s_by").value.trim();
-    const who = form.querySelector("#s_who").value.trim();
-    const desc = form.querySelector("#s_desc").value.trim();
-    if(!by||!who) return toast("Dein Name und Spielername erforderlich", true);
-    await addSupport({id:crypto.randomUUID(), by, who, desc, status:currentStatus, at:Date.now()});
-    toast("Support gespeichert");
-    routeTo("support");
-  };
-  wrap.appendChild(form);
+function fileToDataUrl(file){
+  return new Promise(res=>{
+    const r = new FileReader();
+    r.onload = e=>res(e.target.result);
+    r.readAsDataURL(file);
+  });
+}
 
-  // List
-  const list = el("div","card");
-  list.innerHTML="<h3>Support-Einträge</h3>";
-  const rows = supports.slice().reverse().map(s=>[
-    new Date(s.at).toLocaleString(),
-    s.by,
-    s.who,
-    `<span class="tag">${s.status}</span>`,
-    s.desc||"",
-    can("admin")? `<button class="btn small bad" onclick="delSupportSup('${s.id}')">Löschen</button>` : ""
-  ]);
-  list.appendChild(table(["Zeit","Von","Spieler","Status","Beschreibung","Aktion"], rows));
-  wrap.appendChild(list);
+function toast(msg, err){
+  const t = qs("#toast");
+  t.textContent = msg;
+  t.style.borderColor = err? "#ff6b81" : "#0006";
+  t.classList.remove("hidden");
+  setTimeout(()=>t.classList.add("hidden"), 2000);
+}
 
-  return wrap;
-};
+function routeTo(name){
+  window.location.hash = name;
+  const host = qs("#route"); host.innerHTML = "";
+  const view = routes[name] || routes.home;
+  host.appendChild(view());
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-async function delSupportSup(id){ if(!confirm("Eintrag löschen?")) return; await deleteSupport(id); toast("Eintrag gelöscht"); routeTo("support"); }
+/* expose some handlers to window for table buttons */
+window.setRole=setRole; window.delUser=delUser; window.delMember=delMember;
+window.delLink=delLink; window.delSupport=delSupport;
 
-// =========================
-// Admin Panel (Kombi)
-// =========================
-routes.admin = async function(){ return can("admin") ? await routes.accounts() : denyCard(); }
-
-
-// =====================
-// Home
-// =====================
-routes.home = async function() {
-  const wrap = el("div","grid cols-2");
-  const homeData = await getHome();
-  const members = await getMembers();
-  const users = await getUsers();
-  const supports = await getSupports();
-
-  const hero = el("div","card");
-  hero.innerHTML = `
-    <img src="${homeData.hero||'pepecraft.png'}" alt="Hero" style="width:100%;border-radius:14px;border:1px solid #0006">
-    <h2 style="margin:12px 0 6px 0">${homeData.title||'PepeCraft'}</h2>
-    <p class="muted">${homeData.content||''}</p>
-    <div class="row">
-      <span class="badge">Clan Portal</span>
-      <span class="badge">Minecraft</span>
-      <span class="badge">Support</span>
-    </div>`;
-  wrap.appendChild(hero);
-
-  const stats = el("div","grid");
-  stats.appendChild(cardKPI("Mitglieder", members.length));
-  stats.appendChild(cardKPI("Accounts", users.length));
-  stats.appendChild(cardKPI("Support-Tickets", supports.length));
-  wrap.appendChild(stats);
-
-  if(can("admin")){
-    const edit = el("div","card");
-    edit.innerHTML = `
-      <h3>Startseite bearbeiten</h3>
-      <div class="row"><input id="t" class="input" value="${homeData.title||''}" placeholder="Titel"></div>
-      <div class="row"><input id="h" class="input" value="${homeData.hero||'pepecraft.png'}" placeholder="Hero-Bildpfad"></div>
-      <div class="row"><textarea id="c" class="input" placeholder="Inhalt">${homeData.content||''}</textarea></div>
-      <button class="btn primary" id="save">Speichern</button>`;
-    edit.querySelector("#save").onclick = async () => {
-      await saveHome({
-        title: edit.querySelector("#t").value,
-        hero: edit.querySelector("#h").value,
-        content: edit.querySelector("#c").value
-      });
-      toast("Startseite aktualisiert");
-      routeTo("home");
-    };
-    wrap.appendChild(edit);
-  }
-
-  return wrap;
-};
-
-// =========================
-// Login
-// =========================
-routes.login = async function() {
-  const wrap = el("div","grid");
-  const card = el("div","card");
-  card.innerHTML = `
-    <h3>Login</h3>
-    <div class="row">
-      <input id="e" class="input" type="email" placeholder="Email">
-      <input id="p" class="input" type="password" placeholder="Passwort">
-    </div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn primary" id="loginBtn">Login</button>
-      <button class="btn" id="regBtn">Registrieren</button>
-    </div>`;
-  
-  card.querySelector("#loginBtn").onclick = async () => {
-    const email = card.querySelector("#e").value.trim();
-    const pass = card.querySelector("#p").value.trim();
-    if(!email || !pass) return toast("Email und Passwort erforderlich", true);
-
-    // Supabase Login
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-    if(error) return toast("Login fehlgeschlagen: " + error.message, true);
-
-    // Benutzerinfos aus 'users' Tabelle holen
-    const { data: userData } = await supabase.from('users').select('*').eq('id', data.user.id).single();
-    sessionUser = userData;
-    toast("Erfolgreich eingeloggt");
-    renderTop();
-    routeTo("home");
-  };
-
-  card.querySelector("#regBtn").onclick = async () => {
-    const email = card.querySelector("#e").value.trim();
-    const pass = card.querySelector("#p").value.trim();
-    if(!email || !pass) return toast("Email und Passwort erforderlich", true);
-
-    // Supabase Registrierung
-    const { data, error } = await supabase.auth.signUp({ email, password: pass });
-    if(error) return toast("Registrierung fehlgeschlagen: " + error.message, true);
-
-    // Neuen Benutzer in 'users' Tabelle anlegen
-    await supabase.from('users').insert([{ id: data.user.id, username: email.split('@')[0], role: 'member', created: Date.now() }]);
-    toast("Registrierung erfolgreich. Bitte Login.");
-  };
-
-  wrap.appendChild(card);
-  return wrap;
-};      
-
-// =====================
-// Profile
-// =====================
-routes.profile = async function() {
-  if(!sessionUser) return denyCard("Bitte zuerst einloggen.");
-  const card = el("div","card");
-  card.innerHTML=`
-    <h3>Profil</h3>
-    <div class="flex">
-      <img class="avatar" id="pfp" src="${sessionUser.avatar||'pepecraft.png'}">
-      <div class="row">
-        <input class="input" id="np" type="password" placeholder="Neues Passwort (leer = unverändert)">
-        <input class="input" id="av" type="file" accept="image/*">
-      </div>
-      <button class="btn primary right" id="savep">Speichern</button>
-    </div>`;
-  card.querySelector("#savep").onclick = async ()=>{
-    const np = card.querySelector("#np").value;
-    const file = card.querySelector("#av").files[0];
-    const updates = {};
-    if(np) updates.pass=np;
-    if(file){ 
-      const b64 = await fileToDataUrl(file);
-      updates.avatar=b64;
-    }
-    await updateUser(sessionUser.id, updates);
-    sessionUser = {...sessionUser, ...updates};
-    toast("Profil aktualisiert");
-    renderTop();
-    routeTo("profile");
-  };
-  return card;
-};
-// =========================
-// Helpers
-// =========================
-function fileToDataUrl(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(file); }); }
-
-    async function routeTo(name){
-      const host = qs("#route"); host.innerHTML="";
-      const view = routes[name] || routes.home;
-      host.appendChild(await view());
-      window.scrollTo({top:0,behavior:"smooth"});
-    }
-
-    // =====================
-    // Boot
-    // =====================
-    qs("#yr").textContent = new Date().getFullYear();
-    renderTop();
-    routeTo((location.hash||"#home").slice(1));
-    window.addEventListener("hashchange",()=>routeTo((location.hash||"#home").slice(1)));
-  </script>
+/* boot */
+renderTop();
+routeTo((location.hash||"#home").slice(1));
+window.addEventListener("hashchange", ()=>routeTo((location.hash||"#home").slice(1)));
+</script>
 </body>
 </html>
