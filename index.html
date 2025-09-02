@@ -98,52 +98,56 @@ const DB = {
 };
 
 // seed default owner
-(function seed(){
-  const users = JSON.parse(localStorage.getItem(DB.users)||"[]");
+(function seed() { 
+  const users = JSON.parse(localStorage.getItem(DB.users) || "[]"); 
 
-  // Owner nur einmal anlegen
-  if(!users.find(u=>u.role==="owner")){
-    users.push({
-      id: crypto.randomUUID(),
+  // Owner nur einmal anlegen 
+  if (!users.find(u => u.role === "owner")) { 
+    users.push({ 
+      id: crypto.randomUUID(), 
       username: "RandomAuto",
-      pass: "RandomAuto",
-      role: "owner",
-      avatar: "",
-      created: Date.now()
+      pass: "RandomAuto", 
+      role: "owner", 
+      avatar: "", 
+      created: Date.now() 
     });
-  }
+  } 
 
-  // Feste Accounts unabhängig vom Owner
-  const existingUsernames = users.map(u=>u.username);
-  const newUsers = [
-    {username:"Mausbaery", pass:"mausbaery", role:"admin"},
-    {username:"Dragon", pass:"dragon", role:"admin"},
-    {username:"Tornado", pass:"pikachu", role:"admin"},
-    {username:"Tobi", pass:"huehnertopf", role:"admin"},
-    {username:"Danger222", pass:"danger", role:"admin"},
-    {username:"mb1095", pass:"markus", role:"admin"},
-    {username:"Pegasus84", pass:"verena", role:"admin"},
-    {username:"iti_hd", pass:"terry", role:"member"},
-    {username:"ByRelaxo", pass:"relaxo", role:"member"},
-    {username:"Devil", pass:"devildoom", role:"member"},
-    {username:"CraftExplain", pass:"craft", role:"member"},
-    {username:"SteinPool", pass:"reicherdude", role:"member"},
-    {username:"Jannik", pass:"greentea", role:"member"},
-  ];
+  // Feste Accounts unabhängig vom Owner 
+  const existingUsernames = users.map(u => u.username); 
+  const newUsers = [ 
+    { username: "Mausbaery", pass: "mausbaery", role: "admin" }, 
+    { username: "Dragon", pass: "dragon", role: "admin" }, 
+    { username: "Tornado", pass: "pikachu", role: "admin" }, 
+    { username: "Tobi", pass: "huehnertopf", role: "admin" }, 
+    { username: "Danger222", pass: "danger", role: "admin" }, 
+    { username: "mb1095", pass: "markus", role: "admin" }, 
+    { username: "Pegasus84", pass: "verena", role: "admin" }, 
+    { username: "iti_hd", pass: "terry", role: "member" }, 
+    { username: "ByRelaxo", pass: "relaxo", role: "member" }, 
+    { username: "Devil", pass: "devildoom", role: "member" }, 
+    { username: "CraftExplain", pass: "craft", role: "member" }, 
+    { username: "SteinPool", pass: "reicherdude", role: "member" }, 
+    { username: "Jannik", pass: "greentea", role: "member" } 
+  ]; 
 
-  newUsers.forEach(u=>{
-    if(!existingUsernames.includes(u.username)){
-      users.push({...u, id: crypto.randomUUID(), avatar:"", created: Date.now()});
-    }
-  });
-    localStorage.setItem(DB.users, JSON.stringify(users));
-    localStorage.setItem(DB.home, JSON.stringify({
-      title: "Willkommen bei PepeCraft",
-      content: "Dies ist die PepeCraft Teamseite. Die Seite ist noch in der Beta, weswegen Dinge wie Links und Mitglieder local, also pro User, gespeichert werden. Wir arbeiten bereits an Lösungen. Sollte ein Account benötigt werden, wendet euch an RandomAuto",
-      hero: "pepecraft.png"
-    }));
-  }
-  document.getElementById("yr").textContent = new Date().getFullYear();
+  newUsers.forEach(u => { 
+    if (!existingUsernames.includes(u.username)) { 
+      users.push({ ...u, id: crypto.randomUUID(), avatar: "", created: Date.now() }); 
+    } 
+  }); 
+
+  // Home-Seite
+  localStorage.setItem(DB.home, JSON.stringify({ 
+    title: "Willkommen bei PepeCraft", 
+    content: "Dies ist die PepeCraft Teamseite. Die Seite ist noch in der Beta, weswegen Dinge wie Links und Mitglieder local, also pro User, gespeichert werden. Wir arbeiten bereits an Lösungen. Sollte ein Account benötigt werden, wendet euch an RandomAuto", 
+    hero: "pepecraft.png" 
+  }));
+
+  localStorage.setItem(DB.users, JSON.stringify(users)); 
+
+  // Jahr im Footer 
+  document.getElementById("yr").textContent = new Date().getFullYear(); 
 })();
 
 function getUsers(){ return JSON.parse(localStorage.getItem(DB.users)||"[]"); }
