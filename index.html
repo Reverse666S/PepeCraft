@@ -109,6 +109,23 @@ const DB = {
       avatar: "",
       created: Date.now()
     });
+
+    users.push({ id: crypto.randomUUID(), username: "Mausbaery", pass: "mausbaery", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Dragon", pass: "dragon", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Tornado", pass: "pikachu", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "iti_hd", pass: "terry", role: "member", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Tobi", pass: "huehnertopf", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Danger222", pass: "danger", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "ByRelaxo", pass: "relaxo", role: "member", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Devil", pass: "devildoom", role: "member", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "CraftExplain", pass: "craft", role: "member", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "SteinPool", pass: "reicherdude", role: "member", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "mb1095", pass: "markus", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Pegasus84", pass: "verena", role: "admin", avatar: "", created: Date.now() });
+    users.push({ id: crypto.randomUUID(), username: "Jannik", pass: "greentea", role: "member", avatar: "", created: Date.now() });
+  }
+  localStorage.setItem(DB.users, JSON.stringify(users));
+})();
     localStorage.setItem(DB.users, JSON.stringify(users));
     localStorage.setItem(DB.home, JSON.stringify({
       title: "Willkommen bei PepeCraft",
@@ -257,20 +274,29 @@ const routes = {
     return wrap;
   },
 
-  team(){
-    // Team = alle Nutzer mit Rolle admin/owner
-    const staff = getUsers().filter(u=>u.role!=="member");
-    const card = el("div","card");
-    card.innerHTML = `<h3>Teammitglieder</h3>`;
-    const tbl = table(["Avatar","Username","Rolle","Seit"], staff.map(u=>[
-      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" alt="">`,
-      u.username,
-      `<span class="tag">${u.role}</span>`,
+team(){
+  const staff = getUsers();
+  const card = el("div","card");
+  card.innerHTML = `<h3>Team & Mitglieder</h3>`;
+
+  const tbl = table(
+    ["Avatar","Username","Rolle","Seit"],
+    staff.map(u=>[
+      `<img class="avatar" src="${u.avatar||'pepecraft.png'}" 
+         alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`,
+      `<strong>${u.username}</strong>`,
+      (() => {
+        if(u.role === "owner") return `<span class="tag" style="background:#FFD700;color:#000;">Owner</span>`;
+        if(u.role === "admin") return `<span class="tag" style="background:#007BFF;">Admin</span>`;
+        return `<span class="tag" style="background:#28A745;">Member</span>`;
+      })(),
       new Date(u.created).toLocaleDateString()
-    ]));
-    card.appendChild(tbl);
-    return card;
-  },
+    ])
+  );
+
+  card.appendChild(tbl);
+  return card;
+},
 
   links(){
     const wrap = el("div","grid cols-2");
@@ -391,7 +417,6 @@ const routes = {
       <div class="flex">
         <img class="avatar" id="pfp" src="${me.avatar||'pepecraft.png'}" alt="">
         <div class="row">
-          <input class="input" id="np" type="password" placeholder="Neues Passwort (leer = unverändert)">
           <input class="input" id="av" type="file" accept="image/*">
         </div>
         <button class="btn primary right" id="savep">Speichern</button>
