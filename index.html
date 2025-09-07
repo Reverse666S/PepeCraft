@@ -210,71 +210,134 @@ const routes = {
     return container;
   },
 
-  regeln(){
-    const container=document.createElement("div");
-    container.innerHTML="<h2>Regeln</h2><p>Hier steht das Regelwerk (Platzhalter).</p>";
-    return container;
-  },
+regeln(){
+  const container = document.createElement("div");
+  container.innerHTML = `<h2>Regeln</h2>`;
+  const rules = [
+    "Platzhalter Regel 1",
+    "Platzhalter Regel 2",
+    "Platzhalter Regel 3"
+  ];
+  rules.forEach(r=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<textarea class="input" style="width:100%">${r}</textarea>`;
+    container.appendChild(card);
+  });
+  return container;
+},
 
-  wichtiges(){
-    const container=document.createElement("div");
-    container.innerHTML=`<h2>Wichtiges</h2>
-    <button class="btn" onclick="showImportant(1)">Links</button>
-    <button class="btn" onclick="showImportant(2)">Clan Werbung</button>
-    <div id="important1" class="section"><p>Interne Links Infos...</p></div>
-    <div id="important2" class="section"><p>Clan Werbung Text...</p></div>`;
-    return container;
-  },
+wichtiges(){
+  const container = document.createElement("div");
+  container.innerHTML = `<h2>Wichtiges</h2>`;
+  const items = [
+    {title:"Links", desc:"Interne Links Infos..."},
+    {title:"Clan Werbung", desc:"Clan Werbung Text..."}
+  ];
+  items.forEach(i=>{
+    const card = document.createElement("div");
+    card.className="card";
+    card.style.marginBottom="10px";
+    card.innerHTML=`
+      <input class="input" value="${i.title}" style="margin-bottom:5px">
+      <textarea class="input">${i.desc}</textarea>`;
+    container.appendChild(card);
+  });
+  return container;
+},
 
-  bots(){
-    const container=document.createElement("div");
-    container.innerHTML=`<h2>Bots</h2>
-    <button class="btn" onclick="showBot(1)">Bot 1</button>
-    <button class="btn" onclick="showBot(2)">Bot 2</button>
-    <button class="btn" onclick="showBot(3)">Bot 3</button>
-    <button class="btn" onclick="showBot(4)">Bot 4</button>
-    <div id="bot1" class="section"><p>Bot 1 Infos...</p></div>
-    <div id="bot2" class="section"><p>Bot 2 Infos...</p></div>
-    <div id="bot3" class="section"><p>Bot 3 Infos...</p></div>
-    <div id="bot4" class="section"><p>Bot 4 Infos...</p></div>`;
-    return container;
-  },
+bots(){
+  const container = document.createElement("div");
+  container.innerHTML=`<h2>Bots</h2>`;
+  const bots = [
+    {name:"Bot 1", desc:"Info Bot 1"},
+    {name:"Bot 2", desc:"Info Bot 2"},
+    {name:"Bot 3", desc:"Info Bot 3"},
+    {name:"Bot 4", desc:"Info Bot 4"}
+  ];
+  bots.forEach(b=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.marginBottom="10px";
+    card.innerHTML=`
+      <input class="input" value="${b.name}" style="margin-bottom:5px">
+      <textarea class="input">${b.desc}</textarea>`;
+    container.appendChild(card);
+  });
+  return container;
+},
 
-  faq(){
-    const container=document.createElement("div");
-    container.innerHTML="<h2>FAQ</h2>";
-    ["Wie trete ich dem Clan bei?","Welche Regeln gelten?","Wie werde ich Teammitglied?"].forEach(f=>{
-      const item=document.createElement("div"); item.className="field";
-      const q=document.createElement("p"); q.textContent=f; q.style.cursor="pointer"; q.onclick=()=>a.classList.toggle("hidden");
-      const a=document.createElement("p"); a.textContent="Antwort auf "+f; a.className="hidden";
-      item.appendChild(q); item.appendChild(a); container.appendChild(item);
-    });
-    return container;
-  },
+faq(){
+  const container=document.createElement("div");
+  container.innerHTML="<h2>FAQ</h2>";
+  const faqs=[
+    {q:"Wie trete ich dem Clan bei?", a:"Antwort hier"},
+    {q:"Welche Regeln gelten?", a:"Antwort hier"},
+    {q:"Wie werde ich Teammitglied?", a:"Antwort hier"}
+  ];
+  faqs.forEach(f=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.marginBottom="10px";
+    card.innerHTML=`
+      <input class="input" value="${f.q}" style="margin-bottom:5px">
+      <textarea class="input">${f.a}</textarea>`;
+    container.appendChild(card);
+  });
+  return container;
+},
 
-  bilder(){
-    const container=document.createElement("div");
-    container.innerHTML="<h2>Bilder</h2>";
-    const flex=document.createElement("div"); flex.className="flex";
-    for(let i=0;i<6;i++){
-      const img=document.createElement("img"); img.src="https://via.placeholder.com/200"; img.style.borderRadius="8px";
-      flex.appendChild(img);
-    }
-    container.appendChild(flex);
-    return container;
-  },
+bilder(){
+  const container=document.createElement("div");
+  container.innerHTML="<h2>Bilder</h2>";
+  const images=[
+    "Abgabe.png",
+    "Angel.png",
+    "Clan.png",
+    "Lager.png"
+  ];
+  images.forEach(i=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.style.marginBottom="10px";
+    card.innerHTML=`<input class="input" value="${i}">`;
+    container.appendChild(card);
+  });
+  return container;
+},
 
-  opsucht(){
-    const container=document.createElement("div");
-    container.innerHTML=`<h2>OPSUCHT</h2>
-    <div class="field">
-      <p>Infobox Platzhalter</p>
-      <img src="https://via.placeholder.com/400" alt="OPSUCHT Bild"><br>
-      <button class="btn" onclick="alert('Platzhalter Linkbutton')">Linkbutton</button>
-    </div>`;
-    return container;
-  }
-};
+opsucht(){
+  const container = document.createElement("div");
+  container.innerHTML = "<h2>OPSUCHT</h2>";
+  
+  const entries = [
+    {title:"Titel Platzhalter", desc:"Infobox Platzhalter", link:"#", images:["https://via.placeholder.com/200"]},
+    {title:"Titel Platzhalter 2", desc:"Infobox Platzhalter 2", link:"#", images:["https://via.placeholder.com/200"]}
+  ];
+  
+  entries.forEach(e=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.marginBottom = "10px";
+    
+    // Bilderbereich
+    const imagesHTML = e.images.map(i=>`<input class="input" value="${i}" style="margin-bottom:5px">`).join("<br>");
+    
+    card.innerHTML = `
+      <input class="input" value="${e.title}" placeholder="Titel" style="margin-bottom:5px">
+      <textarea class="input" placeholder="Beschreibung">${e.desc}</textarea>
+      <input class="input" value="${e.link}" placeholder="Link" style="margin-bottom:5px">
+      <h4>Bilder</h4>
+      ${imagesHTML}
+      <button class="btn" onclick="alert('Hier könnte eine Logik zum Hinzufügen eines neuen Bildfeldes sein')">Bild hinzufügen</button>
+    `;
+    
+    container.appendChild(card);
+  });
+  
+  return container;
+}
+
 
 /* ---------------- NAVIGATION ---------------- */
 const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder","opsucht"];
