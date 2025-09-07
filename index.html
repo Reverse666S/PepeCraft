@@ -8,7 +8,7 @@
 <style>
 :root{
   --bg:#0f1220; --panel:#171a2b; --muted:#232742; --fg:#e6e8ff;
-  --accent:#7c5cff; --good:#25c28a; --bad:#ff5c7c; --warn:#f5a524;
+  --accent:#4d7cff; --good:#25c28a; --bad:#ff5c7c; --warn:#f5a524;
 }
 *{box-sizing:border-box;}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#0b0e1a,#0f1220);color:var(--fg);}
@@ -27,8 +27,8 @@ header{display:flex;justify-content:space-between;align-items:center;padding:14p
 .flex-row{display:flex;flex-wrap:wrap;gap:12px;}
 .sidebar{background:var(--muted);padding:20px;border-radius:12px;margin-bottom:20px;flex:1;}
 .field{background:#1a3a6d;padding:15px;margin:10px 0;border-radius:10px;}
-.team-member-section,.bot-section,.important-section{opacity:0;transform:translateY(10px);max-height:0;overflow:hidden;transition:opacity .5s, transform .5s, max-height .5s;}
-.team-member-section.active,.bot-section.active,.important-section.active{opacity:1;transform:translateY(0);max-height:1000px;}
+.section{opacity:0;transform:translateY(10px);max-height:0;overflow:hidden;transition:opacity .5s, transform .5s, max-height .5s;}
+.section.active{opacity:1;transform:translateY(0);max-height:1000px;}
 .avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #0005;background:#0003;}
 .faq-item{background:var(--muted);margin:10px 0;border-radius:10px;overflow:hidden;}
 .faq-question{padding:15px;cursor:pointer;}
@@ -56,7 +56,7 @@ h2{margin-top:0;}
 
 <script>
 // Beispiel-Daten
-let members = [
+let teamMembers = [
   {ign:".DFD1_Dragoon",discord:"dfd1_dragoon",ranks:["Clanleitung","Teamleitung"]},
   {ign:"Mausbaery",discord:"Mausbaery",ranks:["Co Owner","Lagerleitung","Teamleitung"]},
   {ign:".HeimerTobi",discord:"derheimertobi07",ranks:["Admin","Farmerleitung"]},
@@ -67,11 +67,13 @@ let members = [
   {ign:"ByRelaxo",discord:"ByRelaxo",ranks:["Sup+","Farmerleitung"]},
   {ign:"SteinPool",discord:"SteinPool",ranks:["Sup","Geldfarmer"]},
   {ign:".DevilDoom196",discord:"Babyzilla",ranks:["T-Sup","Splitter+"]},
-  {ign:"GoldenEagle",discord:"GoldenEagle#6060",ranks:["PvE"]},
-  {ign:"RedLion",discord:"RedLion#7070",ranks:["Member"]},
-  {ign:"BlueTiger",discord:"BlueTiger#8080",ranks:["Member"]},
-  {ign:"BlackPanther",discord:"BlackPanther#9090",ranks:["Member"]}
-]; 
+];
+
+let clanMembers = [
+  {ign:"PlayerOne",discord:"PlayerOne#1111",ranks:["Member"]},
+  {ign:"PlayerTwo",discord:"PlayerTwo#2222",ranks:["Builder","PvE"]},
+  {ign:"PlayerThree",discord:"PlayerThree#3333",ranks:["Member"]}
+];
 
 const linksData=[
   {name:"Regelwerk",url:"https://reverse666s.github.io/PepeCraft/#regeln"},
@@ -94,20 +96,19 @@ const botData=[
 ];
 
 const importantData=[
-  {name:"Links",info:"Hier wichtige Links einfügen."},
-  {name:"Clan Werbung",info:"Hier Werbung für unseren Clan platzieren."}
+  {name:"Links",info:"Wichtige Links hier."},
+  {name:"Clan Werbung",info:"Werbetexte hier."}
 ];
 
 // Routes
 const routes = {
 home(){
-  const container=document.createElement("div");
-  container.className="flex-row";
+  const container=document.createElement("div"); container.className="flex-row";
   const hero=document.createElement("div"); hero.style.flex="2";
   hero.innerHTML=`<img src="pepecraft.png" alt="PepeCraft Banner">`;
   container.appendChild(hero);
   const sidebar=document.createElement("div"); sidebar.className="sidebar";
-  sidebar.innerHTML=`<p>Mitglieder: ${members.length}</p><p>Teammitglieder: 14</p><p>Links: ${linksData.length}</p>`;
+  sidebar.innerHTML=`<p>Clanmitglieder: ${clanMembers.length}</p><p>Teammitglieder: ${teamMembers.length}</p><p>Links: ${linksData.length}</p>`;
   container.appendChild(sidebar);
   return container;
 },
@@ -116,18 +117,18 @@ team(){
   const container=document.createElement("div");
   container.innerHTML=`<h2>Teamliste</h2>`;
   const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
-  members.slice(0,14).forEach((m,i)=>{
+  teamMembers.forEach((m,i)=>{
     const btn=document.createElement("button");
     btn.textContent=m.ign;
     btn.className="btn";
-    btn.onclick=()=>showTeamMember(i+1);
+    btn.onclick=()=>showSection("team"+(i+1),teamMembers.length,"team");
     btnContainer.appendChild(btn);
   });
   container.appendChild(btnContainer);
-  members.slice(0,14).forEach((m,i)=>{
+  teamMembers.forEach((m,i)=>{
     const div=document.createElement("div");
     div.id=`team${i+1}`;
-    div.className="team-member-section";
+    div.className="section";
     div.innerHTML=`<div class="flex" style="margin-bottom:10px;">
       <img class="avatar" src="https://via.placeholder.com/80">
       <div><h3>Ingame: ${m.ign}</h3><p>Discord: ${m.discord}</p></div>
@@ -141,16 +142,16 @@ team(){
 clanmembers(){
   const container=document.createElement("div");
   container.innerHTML=`<h2>Clanmitglieder</h2>`;
-  const tableEl=document.createElement("table"); tableEl.className="table";
-  const thead=document.createElement("thead");
-  thead.innerHTML="<tr><th>Ingame</th><th>Discord</th><th>Ränge</th></tr>"; tableEl.appendChild(thead);
+  const table=document.createElement("table"); table.className="table";
+  table.innerHTML="<thead><tr><th>Ingame</th><th>Discord</th><th>Ränge</th></tr></thead>";
   const tbody=document.createElement("tbody");
-  members.forEach(m=>{
+  clanMembers.forEach(m=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${m.ign}</td><td>${m.discord}</td><td>${m.ranks.join(", ")}</td>`;
     tbody.appendChild(tr);
   });
-  tableEl.appendChild(tbody); container.appendChild(tableEl);
+  table.appendChild(tbody);
+  container.appendChild(table);
   return container;
 },
 
@@ -159,8 +160,7 @@ links(){
   container.innerHTML=`<h2>Links</h2>`;
   linksData.forEach(l=>{
     const btn=document.createElement("button");
-    btn.textContent=l.name;
-    btn.className="btn";
+    btn.textContent=l.name; btn.className="btn";
     btn.onclick=()=>window.open(l.url,"_blank");
     container.appendChild(btn);
   });
@@ -168,50 +168,44 @@ links(){
 },
 
 regeln(){
-  const container=document.createElement("div");
-  container.innerHTML=`<h2>Regeln</h2><div class="field">1. Kein Spam<br>2. Kein Rassismus<br>3. PvP Regeln beachten<br>Weitere Regeln hier...</div>`;
-  return container;
+  return makeSimple("Regeln","1. Kein Spam<br>2. Kein Rassismus<br>3. PvP Regeln beachten<br>Weitere Regeln hier...");
 },
 
 wichtiges(){
   const container=document.createElement("div");
-  container.innerHTML=`<h2>Wichtiges</h2>`;
-  const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
-  importantData.forEach((imp,i)=>{
+  container.innerHTML="<h2>Wichtiges</h2>";
+  importantData.forEach((d,i)=>{
     const btn=document.createElement("button");
-    btn.textContent=imp.name; btn.className="btn";
-    btn.onclick=()=>showImportant(i+1); btnContainer.appendChild(btn);
+    btn.textContent=d.name; btn.className="btn";
+    btn.onclick=()=>showSection("important"+(i+1),importantData.length,"important");
+    container.appendChild(btn);
     const div=document.createElement("div");
-    div.id=`important${i+1}`;
-    div.className="important-section";
-    div.innerHTML=`<div class="field">${imp.info}</div>`;
+    div.id=`important${i+1}`; div.className="section";
+    div.innerHTML=`<div class="field">${d.info}</div>`;
     container.appendChild(div);
   });
-  container.appendChild(btnContainer);
   return container;
 },
 
 bots(){
   const container=document.createElement("div");
-  container.innerHTML=`<h2>Bots</h2>`;
-  const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
+  container.innerHTML="<h2>Bots</h2>";
   botData.forEach((b,i)=>{
     const btn=document.createElement("button");
     btn.textContent=b.name; btn.className="btn";
-    btn.onclick=()=>showBot(i+1); btnContainer.appendChild(btn);
+    btn.onclick=()=>showSection("bot"+(i+1),botData.length,"bot");
+    container.appendChild(btn);
     const div=document.createElement("div");
-    div.id=`bot${i+1}`;
-    div.className="bot-section";
+    div.id=`bot${i+1}`; div.className="section";
     div.innerHTML=`<div class="field">${b.info}</div>`;
     container.appendChild(div);
   });
-  container.appendChild(btnContainer);
   return container;
 },
 
 faq(){
   const container=document.createElement("div");
-  container.innerHTML=`<h2>FAQ</h2>`;
+  container.innerHTML="<h2>FAQ</h2>";
   faqData.forEach(f=>{
     const item=document.createElement("div"); item.className="faq-item";
     const q=document.createElement("div"); q.className="faq-question"; q.textContent=f.q;
@@ -224,60 +218,48 @@ faq(){
 
 bilder(){
   const container=document.createElement("div");
-  container.innerHTML=`<h2>Bilder</h2>`;
+  container.innerHTML="<h2>Bilder</h2>";
   const flex=document.createElement("div"); flex.className="flex-row";
   for(let i=0;i<6;i++){
-    const img=document.createElement("img"); img.src="https://via.placeholder.com/200";
-    flex.appendChild(img);
+    flex.innerHTML+=`<img src="https://via.placeholder.com/200">`;
   }
   container.appendChild(flex);
   return container;
 },
 
 opsucht(){
-  const container=document.createElement("div");
-  container.innerHTML=`<h2>OPSUCHT</h2>`;
-  const field=document.createElement("div"); field.className="field";
-  field.innerHTML=`<p>Infobox Beispieltext über OPSUCHT</p><img src="https://via.placeholder.com/400"><br>
-  <button class="btn" onclick="alert('Beispiel-Linkbutton')">Linkbutton 1</button>
-  <button class="btn" onclick="alert('Beispiel-Linkbutton')">Linkbutton 2</button>`;
-  container.appendChild(field);
-  return container;
+  return makeSimple("OPSUCHT","<p>Infobox Beispieltext über OPSUCHT</p><img src='https://via.placeholder.com/400'><br><button class='btn'>Link 1</button> <button class='btn'>Link 2</button>");
 }
 };
 
+// Helpers
+function makeSimple(title,content){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>${title}</h2><div class="field">${content}</div>`;
+  return container;
+}
+
+function showSection(id,total,prefix){
+  for(let i=1;i<=total;i++) document.getElementById(prefix+i).classList.remove("active");
+  document.getElementById(id).classList.add("active");
+}
+
 // Navigation
 const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder","opsucht"];
-const navContainer=document.getElementById("topNav");
+const nav=document.getElementById("topNav");
 navItems.forEach(n=>{
   const btn=document.createElement("button");
   btn.textContent=n.charAt(0).toUpperCase()+n.slice(1);
-  btn.className="btn";
-  btn.onclick=()=>routeTo(n);
-  navContainer.appendChild(btn);
+  btn.className="btn"; btn.onclick=()=>routeTo(n);
+  nav.appendChild(btn);
 });
 
 // Routing
 function routeTo(name){
   window.location.hash=name;
-  const container=document.getElementById("route");
-  container.innerHTML="";
-  container.appendChild(routes[name]());
+  const c=document.getElementById("route");
+  c.innerHTML=""; c.appendChild(routes[name]());
   window.scrollTo({top:0,behavior:"smooth"});
-}
-
-// Unsichtbare Sections Funktionen
-function showTeamMember(id){
-  for(let i=1;i<=14;i++) document.getElementById("team"+i).classList.remove("active");
-  document.getElementById("team"+id).classList.add("active");
-}
-function showImportant(id){
-  for(let i=1;i<=2;i++) document.getElementById("important"+i).classList.remove("active");
-  document.getElementById("important"+id).classList.add("active");
-}
-function showBot(id){
-  for(let i=1;i<=4;i++) document.getElementById("bot"+i).classList.remove("active");
-  document.getElementById("bot"+id).classList.add("active");
 }
 
 // Init
@@ -285,5 +267,6 @@ document.getElementById("yr").textContent=new Date().getFullYear();
 routeTo((location.hash||"#home").slice(1));
 window.addEventListener("hashchange",()=>routeTo((location.hash||"#home").slice(1)));
 </script>
+
 </body>
 </html>
