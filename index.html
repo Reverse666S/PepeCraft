@@ -240,101 +240,41 @@ const routes = {
     return container;
   },
 
-faq() {
-  const container = document.createElement("div");
-  container.innerHTML = "<h2>FAQ</h2>";
+  faq(){
+    const container=document.createElement("div");
+    container.innerHTML="<h2>FAQ</h2>";
+    ["Wie trete ich dem Clan bei?","Welche Regeln gelten?","Wie werde ich Teammitglied?"].forEach(f=>{
+      const item=document.createElement("div"); item.className="field";
+      const q=document.createElement("p"); q.textContent=f; q.style.cursor="pointer"; q.onclick=()=>a.classList.toggle("hidden");
+      const a=document.createElement("p"); a.textContent="Antwort auf "+f; a.className="hidden";
+      item.appendChild(q); item.appendChild(a); container.appendChild(item);
+    });
+    return container;
+  },
 
-  // Beispiel-FAQ-Einträge, später beliebig erweiterbar
-  const faqs = [
-    {q: "Wie trete ich dem Clan bei?", a: "Antwort hier"},
-    {q: "Welche Regeln gelten?", a: "Antwort hier"},
-    {q: "Wie werde ich Teammitglied?", a: "Antwort hier"}
-  ];
-
-  faqs.forEach((f, i) => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.marginBottom = "10px";
-
-    // Input für Frage
-    const questionInput = document.createElement("input");
-    questionInput.className = "input";
-    questionInput.value = f.q;
-    questionInput.placeholder = "Frage";
-    questionInput.style.width = "100%";
-    questionInput.style.cursor = "pointer";
-
-    // Textarea für Antwort
-    const answerTextarea = document.createElement("textarea");
-    answerTextarea.className = "input hidden";
-    answerTextarea.value = f.a;
-    answerTextarea.placeholder = "Antwort";
-    answerTextarea.style.width = "100%";
-    answerTextarea.style.marginTop = "5px";
-
-    // Klick auf Frage klappt Antwort ein/aus
-    questionInput.onclick = () => answerTextarea.classList.toggle("hidden");
-
-    card.appendChild(questionInput);
-    card.appendChild(answerTextarea);
-    container.appendChild(card);
-  });
-
-  return container;
-}
-
-bilder() {
-  const container = document.createElement("div");
-  container.innerHTML = "<h2>Bilder</h2>";
-
-  const flex = document.createElement("div");
-  flex.className = "flex";
-  flex.style.flexWrap = "wrap";
-  flex.style.gap = "10px";
-
-  // Bilder direkt im Code definieren
-  const images = [
-    "https://via.placeholder.com/200",
-    "https://via.placeholder.com/201",
-    "https://via.placeholder.com/202",
-    "https://via.placeholder.com/203",
-    "https://via.placeholder.com/204",
-    "https://via.placeholder.com/205"
-  ];
-
-  images.forEach(src => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.style.width = "200px";
-    card.style.textAlign = "center";
-    card.style.marginBottom = "10px";
-
-    const img = document.createElement("img");
-    img.src = src;
-    img.style.width = "100%";
-    img.style.borderRadius = "8px";
-    card.appendChild(img);
-
-    flex.appendChild(card);
-  });
-
-  container.appendChild(flex);
-  return container;
-}
-
+  bilder(){
+    const container=document.createElement("div");
+    container.innerHTML="<h2>Bilder</h2>";
+    const flex=document.createElement("div"); flex.className="flex";
+    for(let i=0;i<6;i++){
+      const img=document.createElement("img"); img.src="https://via.placeholder.com/200"; img.style.borderRadius="8px";
+      flex.appendChild(img);
+    }
+    container.appendChild(flex);
+    return container;
+  },
 
   opsucht(){
     const container=document.createElement("div");
     container.innerHTML=`<h2>OPSUCHT</h2>
     <div class="field">
       <p>Infobox Platzhalter</p>
-      <img src="https://via.placeholder.com/400" alt="OPSUCHT Bild"><br>
+      <img src="" alt="OPSUCHT Bild"><br>
       <button class="btn" onclick="alert('Platzhalter Linkbutton')">Linkbutton</button>
     </div>`;
     return container;
   }
 };
-
 
 /* ---------------- NAVIGATION ---------------- */
 const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder"];
