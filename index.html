@@ -309,32 +309,56 @@ bilder(){
 opsucht(){
   const container = document.createElement("div");
   container.innerHTML = "<h2>OPSUCHT</h2>";
-  
+
   const entries = [
     {title:"Titel Platzhalter", desc:"Infobox Platzhalter", link:"#", images:["https://via.placeholder.com/200"]},
     {title:"Titel Platzhalter 2", desc:"Infobox Platzhalter 2", link:"#", images:["https://via.placeholder.com/200"]}
   ];
-  
-  entries.forEach(e=>{
+
+  entries.forEach((e, idx) => {
     const card = document.createElement("div");
     card.className = "card";
     card.style.marginBottom = "10px";
-    
-    // Bilderbereich
-    const imagesHTML = e.images.map(i=>`<input class="input" value="${i}" style="margin-bottom:5px">`).join("<br>");
-    
+
+    // Bildercontainer
+    const imgContainer = document.createElement("div");
+    imgContainer.className = "flex";
+    imgContainer.style.flexWrap = "wrap";
+    imgContainer.style.gap = "5px";
+
+    e.images.forEach((src) => {
+      const input = document.createElement("input");
+      input.className = "input";
+      input.value = src;
+      input.style.marginBottom = "5px";
+      input.style.flex = "1 0 200px";
+      imgContainer.appendChild(input);
+    });
+
+    const addImgBtn = document.createElement("button");
+    addImgBtn.className = "btn";
+    addImgBtn.textContent = "Bild hinzufügen";
+    addImgBtn.onclick = () => {
+      const newInput = document.createElement("input");
+      newInput.className = "input";
+      newInput.placeholder = "Bild-URL";
+      newInput.style.marginBottom = "5px";
+      newInput.style.flex = "1 0 200px";
+      imgContainer.appendChild(newInput);
+    };
+
     card.innerHTML = `
       <input class="input" value="${e.title}" placeholder="Titel" style="margin-bottom:5px">
       <textarea class="input" placeholder="Beschreibung">${e.desc}</textarea>
       <input class="input" value="${e.link}" placeholder="Link" style="margin-bottom:5px">
       <h4>Bilder</h4>
-      ${imagesHTML}
-      <button class="btn" onclick="alert('Hier könnte eine Logik zum Hinzufügen eines neuen Bildfeldes sein')">Bild hinzufügen</button>
     `;
-    
+
+    card.appendChild(imgContainer);
+    card.appendChild(addImgBtn);
     container.appendChild(card);
   });
-  
+
   return container;
 }
 
