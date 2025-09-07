@@ -6,182 +6,284 @@
 <title>PepeCraft - OPSUCHT Clan</title>
 <link rel="icon" href="pepecraft.png">
 <style>
-body {margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0a0a0a,#0d1a2a);color:#fff;}
-nav {background:#0b2340;padding:10px 20px;display:flex;justify-content:space-around;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
-nav a {color:#fff;text-decoration:none;padding:10px 15px;border-radius:5px;transition:background 0.3s;}
-nav a:hover {background:#1a3a6d;}
-.container {padding:20px;}
-.sidebar {background:#112b4f;padding:20px;border-radius:10px;margin-bottom:20px;}
-.field {background:#1a3a6d;padding:15px;margin:10px 0;border-radius:10px;transition:background 0.3s;}
-.field:hover {background:#2a4a8d;}
-.team-button,.link-button,.bot-button,.hidden-button {background:#1a3a6d;color:#fff;border:none;padding:10px 15px;margin:5px;border-radius:8px;cursor:pointer;transition:background 0.3s;}
-.team-button:hover,.link-button:hover,.bot-button:hover,.hidden-button:hover {background:#2a4a8d;}
-.team-member-section {opacity:0;transform:translateY(10px);max-height:0;overflow:hidden;transition:opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease;}
-.team-member-section.active {opacity:1;transform:translateY(0);max-height:1000px;}
-.team-member-header {display:flex;align-items:center;gap:20px;margin-bottom:15px;}
-.team-member-header img {width:100px;height:100px;border-radius:50%;object-fit:cover;}
-.faq-item {background:#1a3a6d;margin:10px 0;border-radius:10px;overflow:hidden;}
-.faq-question {padding:15px;cursor:pointer;}
-.faq-answer {display:none;padding:15px;border-top:1px solid #2a4a8d;}
-.faq-item.active .faq-answer {display:block;}
-img {max-width:100%;border-radius:10px;}
-.flex-row {display:flex;gap:20px;flex-wrap:wrap;}
+:root{
+  --bg:#0f1220; --panel:#171a2b; --muted:#232742; --fg:#e6e8ff;
+  --accent:#7c5cff; --good:#25c28a; --bad:#ff5c7c; --warn:#f5a524;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(180deg,#0b0e1a,#0f1220);color:var(--fg);}
+a{color:var(--accent);text-decoration:none;}
+img{max-width:100%;border-radius:10px;}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--panel);}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{width:56px;height:56px;border-radius:12px;border:2px solid #0003;}
+.brand h1{margin:0;font-size:22px;}
+.nav{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{background:var(--muted);color:var(--fg);border:none;padding:10px 14px;border-radius:10px;cursor:pointer;transition:.15s;font-weight:600;}
+.btn:hover{background:#2a2f57;transform:translateY(-1px);}
+.container{max-width:1200px;margin:0 auto;padding:20px;}
+.card{background:var(--panel);padding:16px;border-radius:14px;margin-bottom:16px;}
+.flex{display:flex;gap:12px;align-items:center;}
+.flex-row{display:flex;flex-wrap:wrap;gap:12px;}
+.sidebar{background:var(--muted);padding:20px;border-radius:12px;margin-bottom:20px;flex:1;}
+.field{background:#1a3a6d;padding:15px;margin:10px 0;border-radius:10px;}
+.team-member-section,.bot-section,.important-section{opacity:0;transform:translateY(10px);max-height:0;overflow:hidden;transition:opacity .5s, transform .5s, max-height .5s;}
+.team-member-section.active,.bot-section.active,.important-section.active{opacity:1;transform:translateY(0);max-height:1000px;}
+.avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #0005;background:#0003;}
+.faq-item{background:var(--muted);margin:10px 0;border-radius:10px;overflow:hidden;}
+.faq-question{padding:15px;cursor:pointer;}
+.faq-answer{display:none;padding:15px;border-top:1px solid #2a4a8d;}
+.faq-item.active .faq-answer{display:block;}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:10px;border-bottom:1px solid #2a2e4d;text-align:left;}
+.table th{color:#9db;}
+h2{margin-top:0;}
 </style>
 </head>
 <body>
 
-<!-- Navigation -->
-<nav>
-<a href="#start">Start</a>
-<a href="#teammember">Teamliste</a>
-<a href="#clanmembers">Clanmitglieder</a>
-<a href="#links">Links</a>
-<a href="#regeln">Regeln</a>
-<a href="#wichtiges">Wichtiges</a>
-<a href="#bots">Bots</a>
-<a href="#faq">FAQ</a>
-<a href="#bilder">Bilder</a>
-<a href="#opsucht">OPSUCHT</a>
-</nav>
+<header>
+  <div class="brand">
+    <img src="pepecraft.png" alt="PepeCraft Logo">
+    <h1>PepeCraft - OPSUCHT Clan</h1>
+  </div>
+  <nav class="nav" id="topNav"></nav>
+</header>
 
-<div class="container">
+<div class="container" id="route"></div>
 
-<!-- Startseite -->
-<section id="start" class="flex-row">
-<div style="flex:2"><img src="pepecraft.png" alt="PepeCraft Banner"></div>
-<div class="sidebar" style="flex:1;">
-<p>Mitglieder: <span id="member-count">0</span></p>
-<p>Teammitglieder: <span id="team-count">0</span></p>
-<p>Links: <span id="links-count">0</span></p>
-</div>
-</section>
+<footer style="text-align:center;padding:20px;opacity:.7;">© <span id="yr"></span> PepeCraft · Clan Portal</footer>
 
-<!-- Teamliste -->
-<section id="teammember">
-<h2>Teamliste</h2>
-<div class="flex-row">
 <script>
-for(let i=1;i<=14;i++){document.write(`<button class="team-button" onclick="showTeamMember(${i})">Teammitglied ${i}</button>`);}
-</script>
-</div>
+// Beispiel-Daten
+let members = [
+  {ign:"ShadowNico",discord:"ShadowNico#1234",ranks:["Leader","PvP"]},
+  {ign:"FireDragon",discord:"FireDragon#5678",ranks:["Member","PvE"]},
+  {ign:"IceWolf",discord:"IceWolf#9999",ranks:["Member"]},
+  {ign:"StormBreaker",discord:"StormBreaker#2222",ranks:["Member"]},
+  {ign:"NightHawk",discord:"NightHawk#5555",ranks:["Member"]},
+  {ign:"MoonLight",discord:"MoonLight#1010",ranks:["PvP"]},
+  {ign:"SkyFury",discord:"SkyFury#2020",ranks:["Builder"]},
+  {ign:"EarthShaker",discord:"EarthShaker#3030",ranks:["Member"]},
+  {ign:"IronGiant",discord:"IronGiant#4040",ranks:["PvP"]},
+  {ign:"SilverFox",discord:"SilverFox#5050",ranks:["Member"]},
+  {ign:"GoldenEagle",discord:"GoldenEagle#6060",ranks:["PvE"]},
+  {ign:"RedLion",discord:"RedLion#7070",ranks:["Member"]},
+  {ign:"BlueTiger",discord:"BlueTiger#8080",ranks:["Member"]},
+  {ign:"BlackPanther",discord:"BlackPanther#9090",ranks:["Member"]}
+]; 
 
-<!-- Unsichtbare Teammitglieder -->
-<script>
-for(let i=1;i<=14;i++){
-document.write(`
-<div id="team${i}" class="team-member-section">
-<div class="team-member-header">
-<img src="https://via.placeholder.com/100" alt="Profilbild">
-<div><h3>Ingame: Platzhalter</h3><p>Discord: Platzhalter</p></div>
-</div>
-<div class="field"><p>Text für Teammitglied ${i}</p></div>
-</div>
-`);
+const linksData=[
+  {name:"Regelwerk",url:"https://example.com/regeln"},
+  {name:"Forum",url:"https://forum.example.com"},
+  {name:"Discord",url:"https://discord.gg/example"},
+  {name:"Wiki",url:"https://wiki.example.com"}
+];
+
+const faqData=[
+  {q:"Wie tritt man dem Clan bei?",a:"Einfach über unseren Discord bewerben, wir melden uns zeitnah."},
+  {q:"Gibt es ein Mindestalter?",a:"Ja, mindestens 16 Jahre."},
+  {q:"Kann man eigene Projekte vorstellen?",a:"Ja, dafür gibt es die Kategorie 'Projekte' auf dem Forum."}
+];
+
+const botData=[
+  {name:"AutoMod",info:"Moderationsbot für Regeln und Anti-Spam."},
+  {name:"GameBot",info:"Bot für Ingame Events und Leaderboards."},
+  {name:"MusicBot",info:"Musikbot für Voicechannels."},
+  {name:"StatsBot",info:"Erfasst Clan Statistiken automatisch."}
+];
+
+const importantData=[
+  {name:"Links",info:"Hier wichtige Links einfügen."},
+  {name:"Clan Werbung",info:"Hier Werbung für unseren Clan platzieren."}
+];
+
+// Routes
+const routes = {
+home(){
+  const container=document.createElement("div");
+  container.className="flex-row";
+  const hero=document.createElement("div"); hero.style.flex="2";
+  hero.innerHTML=`<img src="pepecraft.png" alt="PepeCraft Banner">`;
+  container.appendChild(hero);
+  const sidebar=document.createElement("div"); sidebar.className="sidebar";
+  sidebar.innerHTML=`<p>Mitglieder: ${members.length}</p><p>Teammitglieder: 14</p><p>Links: ${linksData.length}</p>`;
+  container.appendChild(sidebar);
+  return container;
+},
+
+team(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Teamliste</h2>`;
+  const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
+  members.slice(0,14).forEach((m,i)=>{
+    const btn=document.createElement("button");
+    btn.textContent=m.ign;
+    btn.className="btn";
+    btn.onclick=()=>showTeamMember(i+1);
+    btnContainer.appendChild(btn);
+  });
+  container.appendChild(btnContainer);
+  members.slice(0,14).forEach((m,i)=>{
+    const div=document.createElement("div");
+    div.id=`team${i+1}`;
+    div.className="team-member-section";
+    div.innerHTML=`<div class="flex" style="margin-bottom:10px;">
+      <img class="avatar" src="https://via.placeholder.com/80">
+      <div><h3>Ingame: ${m.ign}</h3><p>Discord: ${m.discord}</p></div>
+    </div>
+    <div class="field"><p>Beschreibung für ${m.ign} hier einfügen.</p></div>`;
+    container.appendChild(div);
+  });
+  return container;
+},
+
+clanmembers(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Clanmitglieder</h2>`;
+  const tableEl=document.createElement("table"); tableEl.className="table";
+  const thead=document.createElement("thead");
+  thead.innerHTML="<tr><th>Ingame</th><th>Discord</th><th>Ränge</th></tr>"; tableEl.appendChild(thead);
+  const tbody=document.createElement("tbody");
+  members.forEach(m=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${m.ign}</td><td>${m.discord}</td><td>${m.ranks.join(", ")}</td>`;
+    tbody.appendChild(tr);
+  });
+  tableEl.appendChild(tbody); container.appendChild(tableEl);
+  return container;
+},
+
+links(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Links</h2>`;
+  linksData.forEach(l=>{
+    const btn=document.createElement("button");
+    btn.textContent=l.name;
+    btn.className="btn";
+    btn.onclick=()=>window.open(l.url,"_blank");
+    container.appendChild(btn);
+  });
+  return container;
+},
+
+regeln(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Regeln</h2><div class="field">1. Kein Spam<br>2. Kein Rassismus<br>3. PvP Regeln beachten<br>Weitere Regeln hier...</div>`;
+  return container;
+},
+
+wichtiges(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Wichtiges</h2>`;
+  const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
+  importantData.forEach((imp,i)=>{
+    const btn=document.createElement("button");
+    btn.textContent=imp.name; btn.className="btn";
+    btn.onclick=()=>showImportant(i+1); btnContainer.appendChild(btn);
+    const div=document.createElement("div");
+    div.id=`important${i+1}`;
+    div.className="important-section";
+    div.innerHTML=`<div class="field">${imp.info}</div>`;
+    container.appendChild(div);
+  });
+  container.appendChild(btnContainer);
+  return container;
+},
+
+bots(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Bots</h2>`;
+  const btnContainer=document.createElement("div"); btnContainer.className="flex-row";
+  botData.forEach((b,i)=>{
+    const btn=document.createElement("button");
+    btn.textContent=b.name; btn.className="btn";
+    btn.onclick=()=>showBot(i+1); btnContainer.appendChild(btn);
+    const div=document.createElement("div");
+    div.id=`bot${i+1}`;
+    div.className="bot-section";
+    div.innerHTML=`<div class="field">${b.info}</div>`;
+    container.appendChild(div);
+  });
+  container.appendChild(btnContainer);
+  return container;
+},
+
+faq(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>FAQ</h2>`;
+  faqData.forEach(f=>{
+    const item=document.createElement("div"); item.className="faq-item";
+    const q=document.createElement("div"); q.className="faq-question"; q.textContent=f.q;
+    const a=document.createElement("div"); a.className="faq-answer"; a.textContent=f.a;
+    q.onclick=()=>item.classList.toggle("active");
+    item.appendChild(q); item.appendChild(a); container.appendChild(item);
+  });
+  return container;
+},
+
+bilder(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>Bilder</h2>`;
+  const flex=document.createElement("div"); flex.className="flex-row";
+  for(let i=0;i<6;i++){
+    const img=document.createElement("img"); img.src="https://via.placeholder.com/200";
+    flex.appendChild(img);
+  }
+  container.appendChild(flex);
+  return container;
+},
+
+opsucht(){
+  const container=document.createElement("div");
+  container.innerHTML=`<h2>OPSUCHT</h2>`;
+  const field=document.createElement("div"); field.className="field";
+  field.innerHTML=`<p>Infobox Beispieltext über OPSUCHT</p><img src="https://via.placeholder.com/400"><br>
+  <button class="btn" onclick="alert('Beispiel-Linkbutton')">Linkbutton 1</button>
+  <button class="btn" onclick="alert('Beispiel-Linkbutton')">Linkbutton 2</button>`;
+  container.appendChild(field);
+  return container;
 }
-</script>
-</section>
+};
 
-<!-- Clanmitglieder -->
-<section id="clanmembers">
-<h2>Clanmitglieder</h2>
-<div class="field">
-<p>Ingamename: Platzhalter</p>
-<p>Discordname: Platzhalter</p>
-<p>Ränge: Platzhalter</p>
-</div>
-</section>
+// Navigation
+const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder","opsucht"];
+const navContainer=document.getElementById("topNav");
+navItems.forEach(n=>{
+  const btn=document.createElement("button");
+  btn.textContent=n.charAt(0).toUpperCase()+n.slice(1);
+  btn.className="btn";
+  btn.onclick=()=>routeTo(n);
+  navContainer.appendChild(btn);
+});
 
-<!-- Links -->
-<section id="links">
-<h2>Links</h2>
-<button class="link-button" onclick="window.location.href='https://example.com'">Regelwerk</button>
-<button class="link-button" onclick="window.location.href='https://example.com'">Forum</button>
-</section>
+// Routing
+function routeTo(name){
+  window.location.hash=name;
+  const container=document.getElementById("route");
+  container.innerHTML="";
+  container.appendChild(routes[name]());
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-<!-- Regeln -->
-<section id="regeln">
-<h2>Regeln</h2>
-<div class="field"><p>Platzhalter Regelwerk...</p></div>
-</section>
-
-<!-- Wichtiges -->
-<section id="wichtiges">
-<h2>Wichtiges</h2>
-<div class="flex-row">
-<button class="hidden-button" onclick="showImportant(1)">Links</button>
-<button class="hidden-button" onclick="showImportant(2)">Clan Werbung</button>
-</div>
-<div id="important1" class="team-member-section"><div class="field"><p>Inhalt für Links</p></div></div>
-<div id="important2" class="team-member-section"><div class="field"><p>Inhalt für Clan Werbung</p></div></div>
-</section>
-
-<!-- Bots -->
-<section id="bots">
-<h2>Bots</h2>
-<div class="flex-row">
-<button class="bot-button" onclick="showBot(1)">Bot 1</button>
-<button class="bot-button" onclick="showBot(2)">Bot 2</button>
-<button class="bot-button" onclick="showBot(3)">Bot 3</button>
-<button class="bot-button" onclick="showBot(4)">Bot 4</button>
-</div>
-<div id="bot1" class="team-member-section"><div class="field"><p>Info zu Bot 1</p></div></div>
-<div id="bot2" class="team-member-section"><div class="field"><p>Info zu Bot 2</p></div></div>
-<div id="bot3" class="team-member-section"><div class="field"><p>Info zu Bot 3</p></div></div>
-<div id="bot4" class="team-member-section"><div class="field"><p>Info zu Bot 4</p></div></div>
-</section>
-
-<!-- FAQ -->
-<section id="faq">
-<h2>FAQ</h2>
-<div class="faq-item">
-<div class="faq-question" onclick="this.parentElement.classList.toggle('active')">Frage 1</div>
-<div class="faq-answer">Antwort 1</div>
-</div>
-<div class="faq-item">
-<div class="faq-question" onclick="this.parentElement.classList.toggle('active')">Frage 2</div>
-<div class="faq-answer">Antwort 2</div>
-</div>
-</section>
-
-<!-- Bilder -->
-<section id="bilder">
-<h2>Bilder</h2>
-<div class="flex-row">
-<img src="https://via.placeholder.com/200" alt="Bildplatzhalter">
-<img src="https://via.placeholder.com/200" alt="Bildplatzhalter">
-</div>
-</section>
-
-<!-- OPSUCHT -->
-<section id="opsucht">
-<h2>OPSUCHT</h2>
-<div class="field">
-<p>Infobox Platzhalter</p>
-<img src="https://via.placeholder.com/400" alt="OPSUCHT Bild">
-<button class="link-button" onclick="window.location.href='https://example.com'">Linkbutton</button>
-</div>
-</section>
-
-</div>
-
-<script>
+// Unsichtbare Sections Funktionen
 function showTeamMember(id){
-  for(let i=1;i<=14;i++){document.getElementById('team'+i).classList.remove('active');}
-  document.getElementById('team'+id).classList.add('active');
+  for(let i=1;i<=14;i++) document.getElementById("team"+i).classList.remove("active");
+  document.getElementById("team"+id).classList.add("active");
 }
 function showImportant(id){
-  for(let i=1;i<=2;i++){document.getElementById('important'+i).classList.remove('active');}
-  document.getElementById('important'+id).classList.add('active');
+  for(let i=1;i<=2;i++) document.getElementById("important"+i).classList.remove("active");
+  document.getElementById("important"+id).classList.add("active");
 }
 function showBot(id){
-  for(let i=1;i<=4;i++){document.getElementById('bot'+i).classList.remove('active');}
-  document.getElementById('bot'+id).classList.add('active');
+  for(let i=1;i<=4;i++) document.getElementById("bot"+i).classList.remove("active");
+  document.getElementById("bot"+id).classList.add("active");
 }
-// Sidebar Zählung
-document.getElementById('member-count').innerText=document.querySelectorAll('#clanmembers .field').length;
-document.getElementById('team-count').innerText=14;
-document.getElementById('links-count').innerText=document.querySelectorAll('#links .link-button').length;
-</script>
 
+// Init
+document.getElementById("yr").textContent=new Date().getFullYear();
+routeTo((location.hash||"#home").slice(1));
+window.addEventListener("hashchange",()=>routeTo((location.hash||"#home").slice(1)));
+</script>
 </body>
 </html>
