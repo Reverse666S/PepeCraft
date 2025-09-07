@@ -149,7 +149,7 @@ const routes = {
   home(){
     const container=document.createElement("div");
     container.innerHTML=`<h2>Willkommen</h2>
-      <img src="pepecraft.png" alt="Startbild">
+      <img src="https://via.placeholder.com/400x200" alt="Startbild">
       <div class="sidebar">
         <p>Clanmitglieder: ${clanMembers.length}</p>
         <p>Teammitglieder: ${teamMembers.length}</p>
@@ -157,38 +157,6 @@ const routes = {
       </div>`;
     return container;
   },
-
-function bigInfoCard(title,value){
-  const c = el("div","card");
-  c.style.textAlign="center";
-  c.style.padding="30px";
-  c.style.background="linear-gradient(180deg,#1b1f39,#151932)";
-  c.innerHTML = `
-    <div style="font-size:20px;color:#aab">${title}</div>
-    <div style="font-size:40px;font-weight:800;margin-top:10px">${value}</div>`;
-  return c;
-}
-
-function bigInfoCard(title,value){
-  const c = el("div","card");
-  c.style.textAlign="center";
-  c.style.padding="30px";
-  c.innerHTML = `
-    <div style="font-size:18px;color:#aab">${title}</div>
-    <div style="font-size:34px;font-weight:800;margin-top:10px">${value}</div>`;
-  return c;
-}
-
-
-function bigInfoCard(title,value){
-  const c = el("div","card");
-  c.style.textAlign="center";
-  c.style.padding="30px";
-  c.innerHTML = `
-    <div style="font-size:18px;color:#aab">${title}</div>
-    <div style="font-size:34px;font-weight:800;margin-top:10px">${value}</div>`;
-  return c;
-}
 
   team(){
     const container=document.createElement("div");
