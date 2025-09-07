@@ -147,28 +147,50 @@ let links = [
 /* ---------------- ROUTEN ---------------- */
 const routes = {
 home(){
+  const home = getHome();
   const wrap = el("div","grid cols-2");
+
+  // --- Linke Seite (Bild + Text) ---
   const left = el("div","card");
   left.innerHTML = `
-    <img src="pepecraft.png" alt="Hero" 
+    <img src="${home.hero||'pepecraft.png'}" 
+         alt="Hero" 
          style="width:100%;border-radius:14px;border:1px solid #0006">
-    <h2 style="margin:12px 0 6px 0">Willkommen bei PepeCraft</h2>
-    <p id="homeText" class="muted">
-      Hallo und willkommen auf der PepeCraft Seite. Hier findest du alle Infos,
-      die du eventuell brauchen könntest. Für mehr Informationen schau bei unserem Discord
-      vorbei!
-    </p>`;
+    <h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft - OPSUCHT Clan'}</h2>
+    <p style="font-size:16px;line-height:1.5">${home.content||'Willkommen auf der offiziellen Clan-Seite von PepeCraft.'}</p>`;
   wrap.appendChild(left);
 
-  // --- Rechte Seite (Sidebar mit großen Feldern) ---
+  // --- Rechte Seite (Sidebar mit großen Infoboxen) ---
   const right = el("div","grid");
-  right.appendChild(bigInfoCard("Clanmitglieder", clanMembers.length));
+  right.appendChild(bigInfoCard("Clanmitglieder", getMembers().length));
   right.appendChild(bigInfoCard("Teammitglieder", teamMembers.length));
   right.appendChild(bigInfoCard("Links", getLinks().length));
   wrap.appendChild(right);
 
   return wrap;
 }
+
+function bigInfoCard(title,value){
+  const c = el("div","card");
+  c.style.textAlign="center";
+  c.style.padding="30px";
+  c.style.background="linear-gradient(180deg,#1b1f39,#151932)";
+  c.innerHTML = `
+    <div style="font-size:20px;color:#aab">${title}</div>
+    <div style="font-size:40px;font-weight:800;margin-top:10px">${value}</div>`;
+  return c;
+}
+
+function bigInfoCard(title,value){
+  const c = el("div","card");
+  c.style.textAlign="center";
+  c.style.padding="30px";
+  c.innerHTML = `
+    <div style="font-size:18px;color:#aab">${title}</div>
+    <div style="font-size:34px;font-weight:800;margin-top:10px">${value}</div>`;
+  return c;
+}
+
 
 function bigInfoCard(title,value){
   const c = el("div","card");
@@ -299,15 +321,30 @@ function bigInfoCard(title,value){
 };
 
 /* ---------------- NAVIGATION ---------------- */
-const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder","opsucht"];
-const navContainer=document.getElementById("topNav");
-navItems.forEach(n=>{
-  const btn=document.createElement("button");
-  btn.textContent=n.charAt(0).toUpperCase()+n.slice(1);
-  btn.className="btn";
-  btn.onclick=()=>routeTo(n);
-  navContainer.appendChild(btn);
-});
+function renderTop(){
+  const nav = qs("#topNav");
+  nav.innerHTML = "";
+
+  const pages = [
+    {label:"Start", route:"home"},
+    {label:"Clanmitglieder", route:"members"},
+    {label:"Teamliste", route:"team"},
+    {label:"Links", route:"links"},
+    {label:"Regeln", route:"rules"},
+    {label:"Wichtiges", route:"important"},
+    {label:"Bots", route:"bots"},
+    {label:"FAQ", route:"faq"},
+    {label:"Bilder", route:"images"},
+    {label:"OPSUCHT", route:"opsucht"}
+  ];
+
+  pages.forEach(p => {
+    const b = el("button","btn small");
+    b.textContent = p.label;
+    b.onclick = () => routeTo(p.route);
+    nav.appendChild(b);
+  });
+}
 
 /* ---------------- ROUTING ---------------- */
 function routeTo(name){
