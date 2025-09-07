@@ -257,7 +257,10 @@ const routes = {
     container.innerHTML="<h2>Bilder</h2>";
     const flex=document.createElement("div"); flex.className="flex";
     for(let i=0;i<6;i++){
-      const img=document.createElement("img"); img.src="https://via.placeholder.com/200"; img.style.borderRadius="8px";
+      const img=document.createElement("img"); img.src="Clan.png"; img.style.borderRadius="8px";
+      const img=document.createElement("img"); img.src="Angel.png"; img.style.borderRadius="8px";
+      const img=document.createElement("img"); img.src="Abgabe.png"; img.style.borderRadius="8px";
+      const img=document.createElement("img"); img.src="Lager.png"; img.style.borderRadius="8px";
       flex.appendChild(img);
     }
     container.appendChild(flex);
@@ -269,7 +272,7 @@ const routes = {
     container.innerHTML=`<h2>OPSUCHT</h2>
     <div class="field">
       <p>Infobox Platzhalter</p>
-      <img src="" alt="OPSUCHT Bild"><br>
+      <img src="OPSUCHT.png" alt="OPSUCHT Bild"><br>
       <button class="btn" onclick="alert('Platzhalter Linkbutton')">Linkbutton</button>
     </div>`;
     return container;
