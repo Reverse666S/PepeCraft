@@ -193,7 +193,7 @@ const routes = {
     return container;
   },
 
-  clanwerbung(){
+  wichtiges(){
     const container=document.createElement("div");
     container.innerHTML=`<h2>Clan Werbung</h2>
     <button class="btn" onclick="showImportant(1)">Clan Werbung 1</button>
@@ -219,7 +219,7 @@ const routes = {
   }};
 
 /* ---------------- NAVIGATION ---------------- */
-const navItems=["home","team","links","clanwerbung","bots"];
+const navItems=["home","team","links","wichtiges","bots"];
 const navContainer=document.getElementById("topNav");
 navItems.forEach(n=>{
   const btn=document.createElement("button");
