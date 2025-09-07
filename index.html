@@ -148,12 +148,12 @@ let links = [
 const routes = {
   home(){
     const container=document.createElement("div");
-    container.innerHTML=`<h2>Willkommen</h2>
+    container.innerHTML=`<h2>Willkommen bei PepeCraft</h2>
       <img src="pepecraft.png" alt="Startbild">
       <div class="sidebar">
-        <p>Clanmitglieder: ${clanMembers.length}</p>
-        <p>Teammitglieder: ${teamMembers.length}</p>
-        <p>Links: ${links.length}</p>
+        <p><b>Clanmitglieder:</b> ${clanMembers.length}</p>
+        <p><b>Teammitglieder:</b> ${teamMembers.length}</p>
+        <p><b>Links:</b> ${links.length}</p>
       </div>`;
     return container;
   },
