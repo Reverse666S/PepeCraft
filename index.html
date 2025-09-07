@@ -146,29 +146,17 @@ let links = [
 
 /* ---------------- ROUTEN ---------------- */
 const routes = {
-home(){
-  const home = getHome();
-  const wrap = el("div","grid cols-2");
-
-  // --- Linke Seite (Bild + Text) ---
-  const left = el("div","card");
-  left.innerHTML = `
-    <img src="${home.hero||'pepecraft.png'}" 
-         alt="Hero" 
-         style="width:100%;border-radius:14px;border:1px solid #0006">
-    <h2 style="margin:12px 0 6px 0">${home.title||'PepeCraft - OPSUCHT Clan'}</h2>
-    <p style="font-size:16px;line-height:1.5">${home.content||'Willkommen auf der offiziellen Clan-Seite von PepeCraft.'}</p>`;
-  wrap.appendChild(left);
-
-  // --- Rechte Seite (Sidebar mit großen Infoboxen) ---
-  const right = el("div","grid");
-  right.appendChild(bigInfoCard("Clanmitglieder", getMembers().length));
-  right.appendChild(bigInfoCard("Teammitglieder", teamMembers.length));
-  right.appendChild(bigInfoCard("Links", getLinks().length));
-  wrap.appendChild(right);
-
-  return wrap;
-}
+  home(){
+    const container=document.createElement("div");
+    container.innerHTML=`<h2>Willkommen</h2>
+      <img src="pepecraft.png" alt="Startbild">
+      <div class="sidebar">
+        <p>Clanmitglieder: ${clanMembers.length}</p>
+        <p>Teammitglieder: ${teamMembers.length}</p>
+        <p>Links: ${links.length}</p>
+      </div>`;
+    return container;
+  },
 
 function bigInfoCard(title,value){
   const c = el("div","card");
@@ -321,30 +309,15 @@ function bigInfoCard(title,value){
 };
 
 /* ---------------- NAVIGATION ---------------- */
-function renderTop(){
-  const nav = qs("#topNav");
-  nav.innerHTML = "";
-
-  const pages = [
-    {label:"Start", route:"home"},
-    {label:"Clanmitglieder", route:"members"},
-    {label:"Teamliste", route:"team"},
-    {label:"Links", route:"links"},
-    {label:"Regeln", route:"rules"},
-    {label:"Wichtiges", route:"important"},
-    {label:"Bots", route:"bots"},
-    {label:"FAQ", route:"faq"},
-    {label:"Bilder", route:"images"},
-    {label:"OPSUCHT", route:"opsucht"}
-  ];
-
-  pages.forEach(p => {
-    const b = el("button","btn small");
-    b.textContent = p.label;
-    b.onclick = () => routeTo(p.route);
-    nav.appendChild(b);
-  });
-}
+const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots","faq","bilder","opsucht"];
+const navContainer=document.getElementById("topNav");
+navItems.forEach(n=>{
+  const btn=document.createElement("button");
+  btn.textContent=n.charAt(0).toUpperCase()+n.slice(1);
+  btn.className="btn";
+  btn.onclick=()=>routeTo(n);
+  navContainer.appendChild(btn);
+});
 
 /* ---------------- ROUTING ---------------- */
 function routeTo(name){
