@@ -44,97 +44,92 @@ let teamMembers = [
     discord: "dfd1_dragoon",
     ranks: ["Clanleitung","Teamleitung"],
     img: "Dragon.png",
-    desc: "Clanleitung und Teamleitung."
+    desc: "Hey, ich bin Dragon und ich bin die Clanleitung. Ich kümmere mich um das Management des Servers und Clans und werde dabei stets von meinem Hohen Team unterstützt."
   },
   {
     ign: "Mausbaery",
     discord: "Mausbaery",
     ranks: ["Co Owner","Lagerleitung","Teamleitung"],
     img: "Lara.png",
-    desc: "Co Owner, Lagerleitung und Teamleitung."
+    desc: "Mein Name ist Mausbaery, ich bin hier die Co Ownerin. Ich verwalte neben Dragon alles, was mit dem PepeClan zu tun hat und mag es, RandomAuto zu ärgern :)"
   },
   {
     ign: ".HeimerTobi",
     discord: "derheimertobi07",
     ranks: ["Admin","Farmerleitung"],
     img: "Tobi.png",
-    desc: "Admin, zuständig für Farming."
+    desc: "Jojo, Tobi hier, mein Platz ist Admin und Hühnertopf. Ich wechselte hierher und übernahm die Aufgaben eines Admins und der Farmleitung. In letzterem bin ich zurzeit nicht ganz aktiv, aber vereint packen wir das schon!"
   },
   {
     ign: "Tornado_Banane",
     discord: "pikachu/Thomas",
     ranks: ["Teamleitung","Builderleitung","Moderator"],
     img: "Thomas.png",
-    desc: "Teamleitung, Builderleitung und Moderator."
+    desc: "Pika! Ich bin ein Pikachu, bekannt als ehemaliger Mod Tornado_Banane. Ich bin die Teamleitung und versorge das Team mit meinen Bananen, damit sie weiterhin aktiv bleiben"
   },
   {
     ign: "RandomAuto",
     discord: "RandomAuto",
     ranks: ["Developer","Builderleitung","Sup+"],
     img: "RandomAuto.png",
-    desc: "Developer, Builderleitung und Sup+."
+    desc: "Moin, ich bin Nico/RandomAuto und ich bin einer der Devs hier. Ich kümmere mich um die Technik und Bots, ebenso um die Instandhaltung des Discords. Zudem helfe ich Tornado_Banane als Builderleitung aus"
   },
   {
     ign: "Danger222",
     discord: "Danger222",
     ranks: ["Developer","Moderator"],
     img: "Danger.png",
-    desc: "Developer und Moderator."
+    desc: "Danger hier, bin einer der zwei Discord Developer und sorge für die Instandhaltung. Meinem Nebenberuf als Mod gehe ich manchmal auch nach. Bin eher selten da, da ich viel unterwegs bin, aber ich bemühe mich"
   },
   {
     ign: ".Pegasus848178",
     discord: "verena84.",
     ranks: ["DC Mod","Sternrolle"],
     img: "Verena.png",
-    desc: "Discord Hüter"
+    desc: "Hey, Pegasus bin ich und ich manage den Discord Server durch meine Rollen und meine Fingerfertigkeit. Ich bin immer dabei, wenn es was Gutes zu hören gibt, sowas mag ich!"
   },   
   {
     ign: "/",
     discord: "mb1095",
     ranks: ["Schriftführer","VIP"],
     img: "Markus.png",
-    desc: "Typ, der eh alles besser weiß"
+    desc: "Tag, ich bin mb1095, bin Schriftführer hier, heißt, ich schreibe alles nieder, was wichtig ist, also Clanbesprechungen, Abmeldungen etc. Ich helfe auch bei Technikproblemen, verfasse Texte und bin allgemein für meine Intelligenz und Hilfsbereitschaft bekannt."
   },  
   {
     ign: "iti_hd",
     discord: "iti_hd",
     ranks: ["Moderator","Lager Beauftragte","Farmerleitung"],
     img: "Svenja.png",
-    desc: "Moderator, Lagerbeauftragte und Farmerleitung."
+    desc: "Ich bin iti_hd und ich bin ein sehr aktiver und hilfsbereiter Mod hier! Durch meine Farm-Aktivität und Lernbereitschaft stieg ich schnell auf und wurde zu einem aktiven Spieler und Werber für den Clan"
   },
   {
     ign: "ByRelaxo",
     discord: "ByRelaxo",
     ranks: ["Sup+","Farmerleitung"],
     img: "Relaxo.png",
-    desc: "Sup+ und Farmerleitung."
+    desc: "Moin zusammen, Relaxo. Ich bin die zweite Farmerleitung und eher wenig aktiv, was aber nichts zu heißen hat, ich arbeite trotzdem gerne mit"
   },
   {
     ign: "SteinPool",
     discord: "SteinPool",
     ranks: ["Sup","Geldfarmer"],
     img: "Steinpool.png",
-    desc: "Sup und Geldfarmer."
+    desc: "Was soll ich über mich sagen? Ich bin hier der Geldfarmer, sprich ich bringe dem Clan viel Geld ein. Nebenbei versuche ich mich als Supporter, was mir bisher auch ganz gut gelingt"
   },
   {
     ign: "Meinler604_",
     discord: "Meinler604_",
     ranks: ["T-Sup","Splitter+"],
     img: "Meinler.png",
-    desc: "Sup im Testdingens"
+    desc: "Ich bin Meinler und ich bin ein sehr aktiver Farmer und Supporter in der Testphase. Bin relativ neu, daher wissen wenige was über mich, aber wenn ich mal farme, bin ich fast nicht mehr zu stoppen"
   },  
   {
     ign: ".DevilDoom196",
     discord: "Babyzilla",
     ranks: ["T-Sup","Splitter+"],
     img: "Devil.png",
-    desc: "T-Sup und Splitter+."
+    desc: "Ich bin DevilDoom und ich bin ein Test Supporter bei PepeCraft. Nebenbei arbeite ich als Splitter, heißt ich übernehme beide Jobs, sowohl Farmer als auch Builder"
   }
-];
-
-/* ---------------- CLANMEMBER ---------------- */
-let clanMembers = [
-  {ign:"Soon", discord:"Soon", ranks:["Member"]}
 ];
 
 /* ---------------- LINKS ---------------- */
@@ -151,7 +146,6 @@ const routes = {
     container.innerHTML=`<h2>Willkommen bei PepeCraft</h2>
       <img src="pepecraft.png" alt="Startbild">
       <div class="sidebar">
-        <p><b>Clanmitglieder:</b> ${clanMembers.length}</p>
         <p><b>Teammitglieder:</b> ${teamMembers.length}</p>
         <p><b>Links:</b> ${links.length}</p>
       </div>`;
@@ -189,17 +183,6 @@ const routes = {
     return container;
   },
 
-  clanmembers(){
-    const container=document.createElement("div");
-    const title=document.createElement("h2"); title.textContent="Clanmitglieder"; container.appendChild(title);
-    clanMembers.forEach(m=>{
-      const f=document.createElement("div"); f.className="field";
-      f.innerHTML=`<b>${m.ign}</b> | Discord: ${m.discord} | Ränge: ${m.ranks.join(", ")}`;
-      container.appendChild(f);
-    });
-    return container;
-  },
-
   links(){
     const container=document.createElement("div");
     const title=document.createElement("h2"); title.textContent="Links"; container.appendChild(title);
@@ -210,39 +193,33 @@ const routes = {
     return container;
   },
 
-  regeln(){
-    const container=document.createElement("div");
-    container.innerHTML="<h2>Regeln</h2><p>Hier steht das Regelwerk (Platzhalter).</p>";
-    return container;
-  },
-
   wichtiges(){
     const container=document.createElement("div");
-    container.innerHTML=`<h2>Wichtiges</h2>
-    <button class="btn" onclick="showImportant(1)">Links</button>
-    <button class="btn" onclick="showImportant(2)">Clan Werbung</button>
-    <div id="important1" class="section"><p>Interne Links Infos...</p></div>
-    <div id="important2" class="section"><p>Clan Werbung Text...</p></div>`;
+    container.innerHTML=`<h2>Clan Werbung</h2>
+    <button class="btn" onclick="showImportant(1)">Clan Werbung 1</button>
+    <button class="btn" onclick="showImportant(2)">Clan Werbung 2</button>
+    <div id="important1" class="section"><p>&a[PepeCraft] &4Du &fsuchst einen Clan &emit Spiel, Spaß und mehr?&f Dann bist du bei &aPepeCraft &fgenau richtig! &7Wir suchen &eeuch&7, für gemeinsame &aBauprojekte&7 und mehr! &fDiscord ist Pflicht &a/msg Name &ffür mehr Infos!</p></div>
+    <div id="important2" class="section"><p>&2&lPepe&a&lClan! &b&lHier gibts jeden Tag Spiel, Spaß und gute Laune für alle! &6&lSchließt euch uns jetzt an. &c&lDiscord ist ein Muss für jeden &a&lFrosch! &f&l/msg (Name)</p></div>`;
     return container;
   },
 
   bots(){
     const container=document.createElement("div");
     container.innerHTML=`<h2>Bots</h2>
-    <button class="btn" onclick="showBot(1)">Bot 1</button>
-    <button class="btn" onclick="showBot(2)">Bot 2</button>
-    <button class="btn" onclick="showBot(3)">Bot 3</button>
-    <button class="btn" onclick="showBot(4)">Bot 4</button>
-    <div id="bot1" class="section"><p>Bot 1 Infos...</p></div>
-    <div id="bot2" class="section"><p>Bot 2 Infos...</p></div>
-    <div id="bot3" class="section"><p>Bot 3 Infos...</p></div>
-    <div id="bot4" class="section"><p>Bot 4 Infos...</p></div>`;
+    <button class="btn" onclick="showBot(1)">Verwaltungsfrosch</button>
+    <button class="btn" onclick="showBot(2)">Pepemanager</button>
+    <button class="btn" onclick="showBot(3)">GlobalChat</button>
+    <button class="btn" onclick="showBot(4)">LunaBot Prime</button>
+    <div id="bot1" class="section"><p>Dies ist der Verwaltungsbot. Er übernimmt 95% der systematischen Verwaltung, die Unterstützung der User und das Umsetzen verschiedener Ziele.</p></div>
+    <div id="bot2" class="section"><p>Der Pepemanager. Ein Schreib-Bot, technische Unterstützung und allgemeine Kontrolle sowie Logverwaltung</p></div>
+    <div id="bot3" class="section"><p>Über den GlobalChat können unsere Mitglieder mit anderen registrierten Discord Serverrn kommunizieren und interagieren</p></div>
+    <div id="bot4" class="section"><p>LunaBot Prime ist ein Musikbot, der eigens für die angelegt wurde, die gerne Musik hören möchten. Hierfür ist eine Registierung via Ticket nötig</p></div>`;
     return container;
   
   }};
 
 /* ---------------- NAVIGATION ---------------- */
-const navItems=["home","team","clanmembers","links","regeln","wichtiges","bots"];
+const navItems=["home","team","links","wichtiges","bots"];
 const navContainer=document.getElementById("topNav");
 navItems.forEach(n=>{
   const btn=document.createElement("button");
