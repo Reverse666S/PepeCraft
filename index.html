@@ -210,101 +210,130 @@ const routes = {
     return container;
   },
 
-regeln(){
+  regeln(){
+    const container=document.createElement("div");
+    container.innerHTML="<h2>Regeln</h2><p>Hier steht das Regelwerk (Platzhalter).</p>";
+    return container;
+  },
+
+  wichtiges(){
+    const container=document.createElement("div");
+    container.innerHTML=`<h2>Wichtiges</h2>
+    <button class="btn" onclick="showImportant(1)">Links</button>
+    <button class="btn" onclick="showImportant(2)">Clan Werbung</button>
+    <div id="important1" class="section"><p>Interne Links Infos...</p></div>
+    <div id="important2" class="section"><p>Clan Werbung Text...</p></div>`;
+    return container;
+  },
+
+  bots(){
+    const container=document.createElement("div");
+    container.innerHTML=`<h2>Bots</h2>
+    <button class="btn" onclick="showBot(1)">Bot 1</button>
+    <button class="btn" onclick="showBot(2)">Bot 2</button>
+    <button class="btn" onclick="showBot(3)">Bot 3</button>
+    <button class="btn" onclick="showBot(4)">Bot 4</button>
+    <div id="bot1" class="section"><p>Bot 1 Infos...</p></div>
+    <div id="bot2" class="section"><p>Bot 2 Infos...</p></div>
+    <div id="bot3" class="section"><p>Bot 3 Infos...</p></div>
+    <div id="bot4" class="section"><p>Bot 4 Infos...</p></div>`;
+    return container;
+  },
+
+faq() {
   const container = document.createElement("div");
-  container.innerHTML = `<h2>Regeln</h2>`;
-  const rules = [
-    "Platzhalter Regel 1",
-    "Platzhalter Regel 2",
-    "Platzhalter Regel 3"
+  container.innerHTML = "<h2>FAQ</h2>";
+
+  // Beispiel-FAQ-Einträge, später beliebig erweiterbar
+  const faqs = [
+    {q: "Wie trete ich dem Clan bei?", a: "Antwort hier"},
+    {q: "Welche Regeln gelten?", a: "Antwort hier"},
+    {q: "Wie werde ich Teammitglied?", a: "Antwort hier"}
   ];
-  rules.forEach(r=>{
+
+  faqs.forEach((f, i) => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<textarea class="input" style="width:100%">${r}</textarea>`;
-    container.appendChild(card);
-  });
-  return container;
-},
+    card.style.marginBottom = "10px";
 
-wichtiges(){
-  const container = document.createElement("div");
-  container.innerHTML = `<h2>Wichtiges</h2>`;
-  const items = [
-    {title:"Links", desc:"Interne Links Infos..."},
-    {title:"Clan Werbung", desc:"Clan Werbung Text..."}
-  ];
-  items.forEach(i=>{
-    const card = document.createElement("div");
-    card.className="card";
-    card.style.marginBottom="10px";
-    card.innerHTML=`
-      <input class="input" value="${i.title}" style="margin-bottom:5px">
-      <textarea class="input">${i.desc}</textarea>`;
-    container.appendChild(card);
-  });
-  return container;
-},
+    // Input für Frage
+    const questionInput = document.createElement("input");
+    questionInput.className = "input";
+    questionInput.value = f.q;
+    questionInput.placeholder = "Frage";
+    questionInput.style.width = "100%";
+    questionInput.style.cursor = "pointer";
 
-bots(){
-  const container = document.createElement("div");
-  container.innerHTML=`<h2>Bots</h2>`;
-  const bots = [
-    {name:"Bot 1", desc:"Info Bot 1"},
-    {name:"Bot 2", desc:"Info Bot 2"},
-    {name:"Bot 3", desc:"Info Bot 3"},
-    {name:"Bot 4", desc:"Info Bot 4"}
-  ];
-  bots.forEach(b=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.style.marginBottom="10px";
-    card.innerHTML=`
-      <input class="input" value="${b.name}" style="margin-bottom:5px">
-      <textarea class="input">${b.desc}</textarea>`;
-    container.appendChild(card);
-  });
-  return container;
-},
+    // Textarea für Antwort
+    const answerTextarea = document.createElement("textarea");
+    answerTextarea.className = "input hidden";
+    answerTextarea.value = f.a;
+    answerTextarea.placeholder = "Antwort";
+    answerTextarea.style.width = "100%";
+    answerTextarea.style.marginTop = "5px";
 
-faq(){
-  const container=document.createElement("div");
-  container.innerHTML="<h2>FAQ</h2>";
-  const faqs=[
-    {q:"Wie trete ich dem Clan bei?", a:"Antwort hier"},
-    {q:"Welche Regeln gelten?", a:"Antwort hier"},
-    {q:"Wie werde ich Teammitglied?", a:"Antwort hier"}
-  ];
-  faqs.forEach(f=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.style.marginBottom="10px";
-    card.innerHTML=`
-      <input class="input" value="${f.q}" style="margin-bottom:5px">
-      <textarea class="input">${f.a}</textarea>`;
-    container.appendChild(card);
-  });
-  return container;
-},
+    // Klick auf Frage klappt Antwort ein/aus
+    questionInput.onclick = () => answerTextarea.classList.toggle("hidden");
 
-bilder(){
-  const container=document.createElement("div");
-  container.innerHTML="<h2>Bilder</h2>";
-  const images=[
-    "Abgabe.png",
-    "Angel.png",
-    "Clan.png",
-    "Lager.png"
-  ];
-  images.forEach(i=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.style.marginBottom="10px";
-    card.innerHTML=`<input class="input" value="${i}">`;
+    card.appendChild(questionInput);
+    card.appendChild(answerTextarea);
     container.appendChild(card);
   });
+
   return container;
 }
+
+bilder() {
+  const container = document.createElement("div");
+  container.innerHTML = "<h2>Bilder</h2>";
+
+  const flex = document.createElement("div");
+  flex.className = "flex";
+  flex.style.flexWrap = "wrap";
+  flex.style.gap = "10px";
+
+  // Bilder direkt im Code definieren
+  const images = [
+    "https://via.placeholder.com/200",
+    "https://via.placeholder.com/201",
+    "https://via.placeholder.com/202",
+    "https://via.placeholder.com/203",
+    "https://via.placeholder.com/204",
+    "https://via.placeholder.com/205"
+  ];
+
+  images.forEach(src => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.width = "200px";
+    card.style.textAlign = "center";
+    card.style.marginBottom = "10px";
+
+    const img = document.createElement("img");
+    img.src = src;
+    img.style.width = "100%";
+    img.style.borderRadius = "8px";
+    card.appendChild(img);
+
+    flex.appendChild(card);
+  });
+
+  container.appendChild(flex);
+  return container;
+}
+
+
+  opsucht(){
+    const container=document.createElement("div");
+    container.innerHTML=`<h2>OPSUCHT</h2>
+    <div class="field">
+      <p>Infobox Platzhalter</p>
+      <img src="https://via.placeholder.com/400" alt="OPSUCHT Bild"><br>
+      <button class="btn" onclick="alert('Platzhalter Linkbutton')">Linkbutton</button>
+    </div>`;
+    return container;
+  }
+};
 
 
 /* ---------------- NAVIGATION ---------------- */
