@@ -201,8 +201,7 @@ const routes = {
     <button class="btn" onclick="showImportant(2)">Clan Werbung 2</button>
     <button class="btn" onclick="showImportant(3)">Clan Werbung Quack</button>
     <div id="important1" class="section"><p>&a[PepeCraft] &4Du &fsuchst einen Clan &emit Spiel, Spaß und mehr?&f Dann bist du bei &aPepeCraft &fgenau richtig! &7Wir suchen &eeuch&7, für gemeinsame &aBauprojekte&7 und mehr! &fDiscord ist Pflicht &a/msg Name &ffür mehr Infos!</p></div>
-    <div id="important2" class="section"><p>&2&lPepe&a&lClan! &b&lHier gibts jeden Tag Spiel, Spaß und gute Laune für alle! &6&lSchließt euch uns jetzt an. &c&lDiscord ist ein Muss für jeden &a&lFrosch! &f&l/msg (Name)</p></div>
-    <div id="important3" class="section"><p>&2&lQuack! &c&lDu &f&lsuchst einen Clan? &a&lDann komm zum &2&lPepe&a&lClan! &f&lWir freuen uns über jedes Mitglied, &6&lwelches uns mit viel Spaß erweitert! &4&lDiscord ist Pflicht! &b&lFür mehr Quack Infos, &e&l/msg Name. &a&lQuack!</p></div>`;
+    <div id="important2" class="section"><p>&2&lQuack! &c&lDu &f&lsuchst einen Clan? &a&lDann komm zum &2&lPepe&a&lClan! &f&lWir freuen uns über jedes Mitglied, &6&lwelches uns mit viel Spaß erweitert! &4&lDiscord ist Pflicht! &b&lFür mehr Quack Infos, &e&l/msg Name. &a&lQuack!</p></div>`;
     return container;
   },
 
@@ -247,7 +246,7 @@ function showTeamMember(id){
   document.getElementById("team"+id).classList.add("active");
 }
 function showImportant(id){
-  for(let i=1;i<=3;i++) document.getElementById("important"+i).classList.remove("active");
+  for(let i=1;i<=2;i++) document.getElementById("important"+i).classList.remove("active");
   document.getElementById("important"+id).classList.add("active");
 }
 function showBot(id){
